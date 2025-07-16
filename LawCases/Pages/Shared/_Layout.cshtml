@@ -1,0 +1,291 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - LawCases</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/LawCases.styles.css" asp-append-version="true" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/global.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="brand-section">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a asp-area="" asp-page="/Index" class="brand-logo">
+                    <i class="fas fa-balance-scale"></i>
+                    LawCases
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <ul class="nav-links">
+                    <li><a asp-area="" asp-page="/Index"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a asp-area="" asp-page="/Privacy"><i class="fas fa-shield-alt"></i> Privacy</a></li>
+                </ul>
+
+                <div class="user-actions">
+                    <a asp-page="/Account/Login" class="nav-links"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    <a asp-page="/Account/Register" class="nav-links"><i class="fas fa-user-plus"></i> Register</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4>Quick Access</h4>
+            <p>Navigate through your legal workspace</p>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h6>Main Navigation</h6>
+                <a href="#" class="menu-item active" data-title="Dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="menu-text">Dashboard</span>
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <h6>Case Management</h6>
+                <a href="#" class="menu-item" data-title="Today's Cases">
+                    <i class="fas fa-calendar-days"></i>
+                    <span class="menu-text">Today's Cases</span>
+                </a>
+                <a href="/Cases/Add" class="menu-item" data-title="Add Case">
+                    <i class="fas fa-plus"></i>
+                    <span class="menu-text">Add Case</span>
+                </a>
+                <a href="/Cases/List" class="menu-item" data-title="All Cases">
+                    <i class="fas fa-copy"></i>
+                    <span class="menu-text">All Cases</span>
+                </a>
+                <a href="#" class="menu-item" data-title="Closed Cases">
+                    <i class="fas fa-check-double"></i>
+                    <span class="menu-text">Closed Cases</span>
+                </a>
+                <a href="#" class="menu-item" data-title="Unscheduled Cases">
+                    <i class="fas fa-calendar-xmark"></i>
+                    <span class="menu-text">Unscheduled Cases</span>
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <h6>Client Management</h6>
+                <a href="/Clients/Add" class="menu-item" data-title="Add New Client">
+                    <i class="fas fa-user-plus"></i>
+                    <span class="menu-text">Add New Client</span>
+                </a>
+                <a href="/Clients/List" class="menu-item" data-title="All Clients">
+                    <i class="fas fa-users"></i>
+                    <span class="menu-text">All Clients</span>
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <h6>Settings</h6>
+                <a href="#" class="menu-item" data-title="About">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <span class="menu-text">About</span>
+                </a>
+                <a href="/Privacy" class="menu-item" data-title="Privacy">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="menu-text">Privacy</span>
+                </a>
+                <a href="#" class="menu-item" data-title="Help & Support">
+                    <i class="fas fa-question-circle"></i>
+                    <span class="menu-text">Help & Support</span>
+                </a>
+                <a class="menu-item" asp-page="/Account/Logout" asp-page-handler="Post"  data-title="Logout">
+                    <i class="fas fa-right-from-bracket"></i>
+                    <span class="menu-text">Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="content-wrapper">
+            <div class="fade-in">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer bg-dark text-white">
+        <div class="container">
+            <p>&copy; 2025 - LawCases Management System - <a href="#" class="text-light">Privacy Policy</a></p>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        class SidebarManager {
+            constructor() {
+                this.sidebar = document.getElementById('sidebar');
+                this.overlay = document.getElementById('sidebarOverlay');
+                this.mainContent = document.getElementById('mainContent');
+                this.toggleBtn = document.getElementById('sidebarToggle');
+                this.isSidebarOpen = window.innerWidth > 768;
+                this.isMobile = window.innerWidth <= 768;
+
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.handleResize();
+                this.setInitialState();
+            }
+
+            setupEventListeners() {
+                // Toggle button
+                if (this.toggleBtn) {
+                    this.toggleBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.toggleSidebar();
+                    });
+                }
+
+                // Overlay click
+                this.overlay.addEventListener('click', () => {
+                    this.closeSidebar();
+                });
+
+                // Window resize
+                window.addEventListener('resize', () => {
+                    this.handleResize();
+                });
+
+                // Outside click for mobile
+                document.addEventListener('click', (event) => {
+                    if (this.isMobile &&
+                        this.isSidebarOpen &&
+                        !this.sidebar.contains(event.target) &&
+                        !this.toggleBtn.contains(event.target)) {
+                        this.closeSidebar();
+                    }
+                });
+
+                // Menu item clicks
+                this.setupMenuItems();
+            }
+
+            setupMenuItems() {
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const href = item.getAttribute('href');
+
+                        if (!href || href === "#") {
+                            e.preventDefault();
+                        } else {
+                            // Update active state
+                            document.querySelectorAll('.menu-item').forEach(i =>
+                                i.classList.remove('active'));
+                            item.classList.add('active');
+
+                            // Close sidebar on mobile after navigation
+                            if (this.isMobile) {
+                                setTimeout(() => this.closeSidebar(), 100);
+                            }
+                        }
+                    });
+                });
+            }
+
+            toggleSidebar() {
+                if (this.isMobile) {
+                    this.toggleMobileSidebar();
+                } else {
+                    this.toggleDesktopSidebar();
+                }
+            }
+
+            toggleMobileSidebar() {
+                this.isSidebarOpen = !this.isSidebarOpen;
+
+                if (this.isSidebarOpen) {
+                    this.sidebar.classList.add('active');
+                    this.overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    this.sidebar.classList.remove('active');
+                    this.overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            toggleDesktopSidebar() {
+                this.isSidebarOpen = !this.isSidebarOpen;
+
+                if (this.isSidebarOpen) {
+                    this.sidebar.classList.remove('collapsed');
+                    this.mainContent.classList.remove('sidebar-collapsed');
+                } else {
+                    this.sidebar.classList.add('collapsed');
+                    this.mainContent.classList.add('sidebar-collapsed');
+                }
+            }
+
+            closeSidebar() {
+                if (this.isMobile) {
+                    this.isSidebarOpen = false;
+                    this.sidebar.classList.remove('active');
+                    this.overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            handleResize() {
+                const wasMobile = this.isMobile;
+                this.isMobile = window.innerWidth <= 768;
+
+                if (wasMobile !== this.isMobile) {
+                    this.setInitialState();
+                }
+            }
+
+            setInitialState() {
+                // Clean up all states
+                this.sidebar.classList.remove('active', 'collapsed');
+                this.overlay.classList.remove('active');
+                this.mainContent.classList.remove('sidebar-collapsed');
+                document.body.style.overflow = '';
+
+                if (this.isMobile) {
+                    // Mobile: start with sidebar closed
+                    this.isSidebarOpen = false;
+                } else {
+                    // Desktop: start with sidebar open
+                    this.isSidebarOpen = true;
+                }
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new SidebarManager();
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

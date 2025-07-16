@@ -1,0 +1,231 @@
+﻿@page
+@model LawCases.Pages.Cases.AddModel
+@{
+    ViewData["Title"] = "Add New Case";
+}
+
+<link rel="stylesheet" href="~/css/global.css" />
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+    <hr />
+
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <!-- Case Basic Information -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Case.Title" class="control-label"></label>
+                    <input asp-for="Case.Title" class="form-control" />
+                    <span asp-validation-for="Case.Title" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.CourtName" class="control-label"></label>
+                    <input asp-for="Case.CourtName" class="form-control" />
+                    <span asp-validation-for="Case.CourtName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.CaseCode" class="control-label"></label>
+                    <input asp-for="Case.CaseCode" class="form-control" />
+                    <span asp-validation-for="Case.CaseCode" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.FilingNumber" class="control-label"></label>
+                    <input asp-for="Case.FilingNumber" class="form-control" />
+                    <span asp-validation-for="Case.FilingNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.FIRNumber" class="control-label"></label>
+                    <input asp-for="Case.FIRNumber" class="form-control" />
+                    <span asp-validation-for="Case.FIRNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.CaseNumber" class="control-label">Case Number <span class="text-muted">(Optional)</span></label>
+                    <input asp-for="Case.CaseNumber" class="form-control" />
+                    <span asp-validation-for="Case.CaseNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.StartDate" class="control-label"></label>
+                    <input asp-for="Case.StartDate" type="date" class="form-control" />
+                    <span asp-validation-for="Case.StartDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Case.ClientId" class="control-label">Client</label>
+                    <select asp-for="Case.ClientId" asp-items="Model.ClientSelectList" class="form-control">
+                        <option value="">Select Client</option>
+                    </select>
+                    <span asp-validation-for="Case.ClientId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.Category" class="control-label">Category</label>
+                    <select asp-for="Case.Category" asp-items="Model.CategorySelectList" class="form-control">
+                        <option value="">Select Category</option>
+                    </select>
+                    <span asp-validation-for="Case.Category" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.Status" class="control-label"></label>
+                    <select asp-for="Case.Status" class="form-control">
+                        <option value="">Select Status</option>
+                        <option value="Open">Open</option>
+                        <option value="Block">Block</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                    <span asp-validation-for="Case.Status" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.CloseType" class="control-label">Close Type <span class="text-muted">(Optional - only if Status is Closed)</span></label>
+                    <select asp-for="Case.CloseType" class="form-control">
+                        <option value="">Select Close Type</option>
+                        <option value="Temporary">Temporary</option>
+                        <option value="Permanent">Permanent</option>
+                    </select>
+                    <span asp-validation-for="Case.CloseType" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.PoliceStation" class="control-label">Police Station <span class="text-muted">(Optional)</span></label>
+                    <input asp-for="Case.PoliceStation" class="form-control" />
+                    <span asp-validation-for="Case.PoliceStation" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.District" class="control-label">District <span class="text-muted">(Optional)</span></label>
+                    <input asp-for="Case.District" class="form-control" />
+                    <span asp-validation-for="Case.District" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.FIRYear" class="control-label"></label>
+                    <input asp-for="Case.FIRYear" type="number" class="form-control" />
+                    <span asp-validation-for="Case.FIRYear" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Judge Information -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label asp-for="Case.JudgeName" class="control-label">Judge Name <span class="text-muted">(Optional)</span></label>
+                    <input asp-for="Case.JudgeName" class="form-control" />
+                    <span asp-validation-for="Case.JudgeName" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Information -->
+        <h4>Payment Information</h4>
+        <hr />
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Case.TotalAmount" class="control-label">Total Amount <span class="text-muted">(Optional)</span></label>
+                    <input asp-for="Case.TotalAmount" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Case.TotalAmount" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Case.InitialAmount" class="control-label">Initial Amount <span class="text-muted">(Optional)</span></label>
+                    <input asp-for="Case.InitialAmount" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Case.InitialAmount" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Case Date Information -->
+        <h4>Case Date Information</h4>
+        <hr />
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Case.PreviousDate" class="control-label">Previous Date <span class="text-muted">(Optional)</span></label>
+                    <input asp-for="Case.PreviousDate" type="date" class="form-control" />
+                    <span asp-validation-for="Case.PreviousDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Case.NextDate" class="control-label">Next Date <span class="text-muted">(Optional)</span></label>
+                    <input asp-for="Case.NextDate" type="date" class="form-control" />
+                    <span asp-validation-for="Case.NextDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Case.Comment" class="control-label">Comment <span class="text-muted">(Optional)</span></label>
+                    <textarea asp-for="Case.Comment" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Case.Comment" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="Case.JudgeRemarks" class="control-label">Judge Remarks <span class="text-muted">(Optional)</span></label>
+                    <textarea asp-for="Case.JudgeRemarks" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Case.JudgeRemarks" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="Case.ClientRemarks" class="control-label">Client Remarks <span class="text-muted">(Optional)</span></label>
+                    <textarea asp-for="Case.ClientRemarks" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Case.ClientRemarks" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="Case.Conclusion" class="control-label">Conclusion <span class="text-muted">(Optional)</span></label>
+                    <textarea asp-for="Case.Conclusion" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Case.Conclusion" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Information -->
+        <h4>Document Information <span class="text-muted">(Optional)</span></h4>
+        <hr />
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Case.FileName" class="control-label">File Name <span class="text-muted">(Optional)</span></label>
+                    <input asp-for="Case.FileName" class="form-control" />
+                    <span asp-validation-for="Case.FileName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Case.FileType" class="control-label">File Type <span class="text-muted">(Optional)</span></label>
+                    <input asp-for="Case.FileType" class="form-control" />
+                    <span asp-validation-for="Case.FileType" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-primary">Create Case</button>
+            <a asp-page="/cases/list" class="btn btn-secondary" role="button">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

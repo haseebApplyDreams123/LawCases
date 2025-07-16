@@ -1,0 +1,105 @@
+﻿@page 
+@model LawCases.Pages.Clients.EditModel
+@{
+    ViewData["Title"] = "Edit Client";
+}
+
+<link rel="stylesheet" href="~/css/global.css" />
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+    <hr />
+
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <input type="hidden" asp-for="Client.Id" />
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Client.FirstName" class="control-label"></label>
+                    <input asp-for="Client.FirstName" class="form-control" />
+                    <span asp-validation-for="Client.FirstName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Client.LastName" class="control-label"></label>
+                    <input asp-for="Client.LastName" class="form-control" />
+                    <span asp-validation-for="Client.LastName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Client.Image" class="control-label"></label>
+                    <input asp-for="Client.Image" class="form-control" />
+                    <span asp-validation-for="Client.Image" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Client.DateOfBirth" class="control-label"></label>
+                    <input asp-for="Client.DateOfBirth" type="date" class="form-control" />
+                    <span asp-validation-for="Client.DateOfBirth" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Client.Email" class="control-label"></label>
+                    <input asp-for="Client.Email" class="form-control" />
+                    <span asp-validation-for="Client.Email" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Client.Username" class="control-label"></label>
+                    <input asp-for="Client.Username" class="form-control" />
+                    <span asp-validation-for="Client.Username" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Client.PhoneNumber" class="control-label"></label>
+                    <input asp-for="Client.PhoneNumber" class="form-control" />
+                    <span asp-validation-for="Client.PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Client.Gender" class="control-label"></label>
+                    <select asp-for="Client.Gender" class="form-control">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <span asp-validation-for="Client.Gender" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Client.MaritalStatus" class="control-label"></label>
+                    <select asp-for="Client.MaritalStatus" class="form-control">
+                        <option value="">Select Marital Status</option>
+                        <option value="Single">Single</option>
+                        <option value="Married">Married</option>
+                        <option value="Divorced">Divorced</option>
+                        <option value="Widowed">Widowed</option>
+                    </select>
+                    <span asp-validation-for="Client.MaritalStatus" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Client.Address" class="control-label"></label>
+                    <textarea asp-for="Client.Address" class="form-control"></textarea>
+                    <span asp-validation-for="Client.Address" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Update Client</button>
+                <a asp-page="/clients/list" class="btn btn-secondary" role="button">Cancel</a>
+            </div>
+     
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

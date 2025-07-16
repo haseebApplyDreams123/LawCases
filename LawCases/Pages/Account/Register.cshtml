@@ -1,0 +1,168 @@
+﻿@page
+@model LawCases.Pages.Account.RegisterModel
+@{
+     Layout = null;
+    ViewData["Title"] = "Register - Professional Legal Platform";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="~/css/global.css" />
+
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="professional-badge">
+            <i class="fas fa-shield-alt"></i> Professional
+        </div>
+
+        <div class="auth-header">
+            <div class="logo">
+                <i class="fas fa-gavel"></i>
+            </div>
+            <h2 class="auth-title">Join Our Platform</h2>
+            <p class="auth-subtitle">Create your professional legal account</p>
+        </div>
+
+        <div class="auth-body">
+            @if (!string.IsNullOrEmpty(Model.Message))
+            {
+                <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger")">
+                    @Model.Message
+                </div>
+            }
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <div asp-validation-summary="All"></div>
+                </div>
+            }
+
+            <form method="post" id="registerForm">
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label asp-for="Input.Name" class="form-label">
+                        <i class="fas fa-user"></i> Full Name
+                    </label>
+                    <div class="input-group">
+                        <input asp-for="Input.Name" class="form-control" placeholder="Enter your full name" required />
+                        <i class="fas fa-user-check input-icon"></i>
+                    </div>
+                    <span asp-validation-for="Input.Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Email" class="form-label">
+                        <i class="fas fa-envelope"></i> Email Address
+                    </label>
+                    <div class="input-group">
+                        <input asp-for="Input.Email" type="email" class="form-control" placeholder="Enter your professional email" required />
+                        <i class="fas fa-at input-icon"></i>
+                    </div>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Password" class="form-label">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <div class="input-group">
+                        <input asp-for="Input.Password" type="password" class="form-control" placeholder="Create a secure password" required />
+                        <i class="fas fa-eye input-icon toggle-password" style="cursor: pointer;"></i>
+                    </div>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.ConfirmPassword" class="form-label">
+                        <i class="fas fa-lock"></i> Confirm Password
+                    </label>
+                    <div class="input-group">
+                        <input asp-for="Input.ConfirmPassword" type="password" class="form-control" placeholder="Confirm your password" required />
+                        <i class="fas fa-check input-icon"></i>
+                    </div>
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="Input.AgreeToTerms" class="form-check-input" type="checkbox" id="agreeTerms" required />
+                    <label asp-for="Input.AgreeToTerms" class="form-check-label" for="agreeTerms">
+                        I agree to the <a href="#" class="toggle-link">Terms of Service</a> and <a href="#" class="toggle-link">Privacy Policy</a>
+                    </label>
+                    <span asp-validation-for="Input.AgreeToTerms" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-user-plus"></i> Create Professional Account
+                </button>
+            </form>
+
+            <div class="toggle-form">
+                <p>Already have an account? <a href="/Account/Login" class="toggle-link">Sign In</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password visibility toggle
+        const togglePassword = document.querySelector('.toggle-password');
+        if (togglePassword) {
+            togglePassword.addEventListener('click', function() {
+                const passwordInput = this.parentElement.querySelector('input[type="password"], input[type="text"]');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                }
+            });
+        }
+
+        // Form submission handling
+        const form = document.getElementById('registerForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Disable submit button to prevent double submission
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+
+                // Basic client-side validation
+                const requiredFields = form.querySelectorAll('[required]');
+                let isValid = true;
+
+                requiredFields.forEach(field => {
+                    if (field.type === 'checkbox' && !field.checked) {
+                        isValid = false;
+                    } else if (field.type !== 'checkbox' && !field.value.trim()) {
+                        isValid = false;
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Professional Account';
+                    alert('Please fill in all required fields and accept the terms.');
+                }
+            });
+        }
+
+        // Form validation enhancement
+        document.querySelectorAll('input[required]').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.style.borderColor = '#dc3545';
+                } else {
+                    this.style.borderColor = '#28a745';
+                }
+            });
+        });
+    });
+</script>

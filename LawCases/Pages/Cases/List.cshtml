@@ -1,0 +1,426 @@
+﻿@page
+@model LawCases.Pages.Cases.ListModel
+@{
+    ViewData["Title"] = "Case Management";
+    @Html.AntiForgeryToken()
+}
+
+<link rel="stylesheet" href="~/css/global.css" />
+<link rel="stylesheet" href="~/css/cases-list.css" />
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2 class="page-title">
+                    <i class="fas fa-gavel text-primary me-2"></i>
+                    Case Management
+                </h2>
+                <p class="page-subtitle">Manage your legal cases and track their progress</p>
+            </div>
+            <div class="col-md-6 text-end">
+                <a asp-page="./Add" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>
+                    Add New Case
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon bg-primary">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>@Model.Cases.Count()</h3>
+                    <p>Total Cases</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon bg-success">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>@Model.Cases.Count(c => c.Status == "Open")</h3>
+                    <p>Open Cases</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon bg-warning">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>@Model.Cases.Count(c => c.Status == "Block")</h3>
+                    <p>Blocked Cases</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon bg-danger">
+                    <i class="fas fa-folder"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>@Model.Cases.Count(c => c.Status == "Closed")</h3>
+                    <p>Closed Cases</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-filter me-2"></i>
+                Filter & Search
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-search me-1"></i>
+                            Search Cases
+                        </label>
+                        <input type="text" name="searchTerm" value="@Model.SearchTerm"
+                               class="form-control" placeholder="Search by title, case code, client name..." />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-traffic-light me-1"></i>
+                            Status
+                        </label>
+                        <select name="statusFilter" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="Open" selected="@(Model.StatusFilter == "Open")">Open</option>
+                            <option value="Block" selected="@(Model.StatusFilter == "Block")">Block</option>
+                            <option value="Closed" selected="@(Model.StatusFilter == "Closed")">Closed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-tags me-1"></i>
+                            Category
+                        </label>
+                        <select name="categoryFilter" class="form-control">
+                            <option value="">All Categories</option>
+                            <option value="Criminal" selected="@(Model.CategoryFilter == "Criminal")">Criminal</option>
+                            <option value="Civil" selected="@(Model.CategoryFilter == "Civil")">Civil</option>
+                            <option value="Family" selected="@(Model.CategoryFilter == "Family")">Family</option>
+                            <option value="Corporate" selected="@(Model.CategoryFilter == "Corporate")">Corporate</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Priority
+                        </label>
+                        <select name="priorityFilter" class="form-control">
+                            <option value="">All Priority</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="form-label d-block">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-1"></i>
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cases Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-table me-2"></i>
+                Cases List (@Model.Cases.Count() results)
+            </h5>
+            <div class="table-actions">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="bulkDeleteCases()">
+                        <i class="fas fa-trash me-1"></i>
+                        Delete Selected
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel me-1"></i>
+                        Export
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="printTable()">
+                        <i class="fas fa-print me-1"></i>
+                        Print
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Cases.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover cases-table" id="casesTable">
+                        <thead class="table-header">
+                            <tr>
+                                <th>
+                                    <input type="checkbox" class="form-check-input" id="selectAll" />
+                                </th>
+                                <th>Case Information</th>
+                                <th>Client & Court</th>
+                                <th>Case Details</th>
+                                <th>Dates</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var caseItem in Model.Cases)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input case-checkbox" value="@caseItem.CaseId" />
+                                    </td>
+                                    <td>
+                                        <div class="case-info">
+                                            <div class="case-icon bg-@(caseItem.Category.ToLower() == "criminal" ? "danger" : caseItem.Category.ToLower() == "civil" ? "primary" : caseItem.Category.ToLower() == "family" ? "warning" : "success")">
+                                                <i class="fas fa-@(caseItem.Category.ToLower() == "criminal" ? "handcuffs" : caseItem.Category.ToLower() == "civil" ? "balance-scale" : caseItem.Category.ToLower() == "family" ? "home" : "building")"></i>
+                                            </div>
+                                            <div class="case-details">
+                                                <h6 class="case-title">@caseItem.Title</h6>
+                                                <small class="case-subtitle">@caseItem.CaseCode</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="case-details">
+                                            <div class="detail-item">
+                                                <i class="fas fa-user text-muted me-1"></i>
+                                                <span class="detail-value">@caseItem.ClientName</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-university text-muted me-1"></i>
+                                                <span class="detail-value">@caseItem.CourtName</span>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(caseItem.JudgeName))
+                                            {
+                                                <div class="detail-item">
+                                                    <i class="fas fa-gavel text-muted me-1"></i>
+                                                    <span class="detail-value">@caseItem.JudgeName</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="case-details">
+                                            <div class="detail-item">
+                                                <span class="detail-label">Category:</span>
+                                                <span class="badge badge-category-@caseItem.Category.ToLower()">
+                                                    @caseItem.Category
+                                                </span>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(caseItem.CaseNumber))
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Case #:</span>
+                                                    <span class="detail-value">@caseItem.CaseNumber</span>
+                                                </div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(caseItem.FilingNumber))
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Filing:</span>
+                                                    <span class="detail-value">@caseItem.FilingNumber</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="date-info">
+                                            <div class="detail-item">
+                                                <span class="detail-label">Start:</span>
+                                                <span class="date-primary">@caseItem.StartDate.ToString("MMM dd, yyyy")</span>
+                                            </div>
+                                            @if (caseItem.NextDate.HasValue)
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Next:</span>
+                                                    <span class="@(caseItem.NextDate.Value < DateTime.Now ? "date-overdue" : caseItem.NextDate.Value <= DateTime.Now.AddDays(7) ? "date-due-soon" : "date-primary")">
+                                                        @caseItem.NextDate.Value.ToString("MMM dd, yyyy")
+                                                    </span>
+                                                </div>
+                                                @if (caseItem.NextDate.Value < DateTime.Now)
+                                                {
+                                                    <span class="badge badge-danger">
+                                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                                        Overdue
+                                                    </span>
+                                                }
+                                                else if (caseItem.NextDate.Value <= DateTime.Now.AddDays(7))
+                                                {
+                                                    <span class="badge badge-warning">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        Due Soon
+                                                    </span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <small class="text-muted">Next date not set</small>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="amount-info">
+                                            @if (caseItem.TotalAmount > 0)
+                                            {
+                                                <span class="amount-primary">@caseItem.TotalAmount.ToString("C")</span>
+                                                @if (caseItem.InitialAmount > 0)
+                                                {
+                                                    <small class="amount-secondary">Initial: @caseItem.InitialAmount.ToString("C")</small>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not set</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-info">
+                                            <span class="badge badge-status-@caseItem.Status.ToLower()">
+                                                <i class="fas fa-@(caseItem.Status == "Open" ? "folder-open" : caseItem.Status == "Block" ? "pause-circle" : "folder") me-1"></i>
+                                                @caseItem.Status
+                                            </span>
+                                            @if (caseItem.Status == "Closed" && !string.IsNullOrEmpty(caseItem.CloseType))
+                                            {
+                                                <small class="text-muted d-block">(@caseItem.CloseType)</small>
+                                            }
+                                            <div class="case-progress">
+                                                <div class="progress-bar progress-@caseItem.Status.ToLower()"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a asp-page="./Details" asp-route-id="@caseItem.CaseId"
+                                               class="btn btn-sm btn-outline-primary" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-page="./Edit" asp-route-id="@caseItem.CaseId"
+                                               class="btn btn-sm btn-outline-warning" title="Edit Case">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    onclick="deleteCase(@caseItem.CaseId, '@caseItem.Title')"
+                                                    title="Delete Case">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h4>No Cases Found</h4>
+                    <p>
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.StatusFilter) || !string.IsNullOrEmpty(Model.CategoryFilter))
+                        {
+                            <span>No cases match your search criteria. Try adjusting your filters.</span>
+                        }
+                        else
+                        {
+                            <span>You haven't created any cases yet. Start by adding your first case.</span>
+                        }
+                    </p>
+                    <a asp-page="./Add" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        Add Your First Case
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.Cases.Any())
+        {
+            <div class="pagination-wrapper">
+                <nav aria-label="Clients pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                        Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong id="clientNameToDelete"></strong>?</p>
+                    <p class="text-muted">This action cannot be undone and will permanently remove all cases data.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="fas fa-trash me-2"></i>
+                        Delete Case
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@section Scripts {
+        <script src="/Pages/Cases/List.cshtml.js"></script>
+}
