@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LawCases.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250710140040_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250716124314_3rdMigration")]
+    partial class _3rdMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,14 +35,16 @@ namespace LawCases.Migrations
 
                     b.Property<string>("CaseCode")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("CaseNumber")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Category")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
@@ -52,7 +54,8 @@ namespace LawCases.Migrations
 
                     b.Property<string>("CourtName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime(6)");
@@ -61,7 +64,6 @@ namespace LawCases.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("District")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("FIRNumber")
@@ -86,7 +88,6 @@ namespace LawCases.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("PoliceStation")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<DateTime>("StartDate")
@@ -94,20 +95,26 @@ namespace LawCases.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("CaseId");
 
+                    b.HasIndex("CaseCode")
+                        .HasDatabaseName("IX_Cases_CaseCode");
+
                     b.HasIndex("ClientId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "IsDeleted")
+                        .HasDatabaseName("IX_Cases_UserId_IsDeleted");
 
                     b.ToTable("Cases");
                 });
@@ -124,16 +131,16 @@ namespace LawCases.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ClientRemarks")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("Conclusion")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime(6)");
@@ -145,8 +152,8 @@ namespace LawCases.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("JudgeRemarks")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime(6)");
@@ -154,18 +161,25 @@ namespace LawCases.Migrations
                     b.Property<DateTime>("NextDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime>("PreviousDate")
-                        .HasColumnType("datetime(6)");
-
                     b.HasKey("CaseDateId");
 
-                    b.HasIndex("CaseId");
+                    b.HasIndex("NextDate")
+                        .HasDatabaseName("IX_CaseDates_NextDate");
+
+                    b.HasIndex("CaseId", "IsDeleted")
+                        .HasDatabaseName("IX_CaseDates_CaseId_IsDeleted");
 
                     b.ToTable("CaseDates");
                 });
 
             modelBuilder.Entity("LawCases.Models.CasePayment", b =>
                 {
+                    b.Property<int>("PaymentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("PaymentId"));
+
                     b.Property<int>("CaseId")
                         .HasColumnType("int");
 
@@ -175,8 +189,8 @@ namespace LawCases.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<decimal>("InitialAmount")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<int?>("InitialAmount")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
@@ -184,12 +198,55 @@ namespace LawCases.Migrations
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<int?>("TotalAmount")
+                        .HasColumnType("int");
 
-                    b.HasKey("CaseId");
+                    b.HasKey("PaymentId");
+
+                    b.HasIndex("CaseId", "IsDeleted")
+                        .HasDatabaseName("IX_CasePayments_CaseId_IsDeleted");
 
                     b.ToTable("CasePayments");
+                });
+
+            modelBuilder.Entity("LawCases.Models.CaseTransaction", b =>
+                {
+                    b.Property<int>("TransactionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("TransactionId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<int>("CaseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("TransactionId");
+
+                    b.HasIndex("CaseId");
+
+                    b.ToTable("CaseTransactions");
                 });
 
             modelBuilder.Entity("LawCases.Models.Category", b =>
@@ -207,7 +264,8 @@ namespace LawCases.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
@@ -217,9 +275,13 @@ namespace LawCases.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.HasKey("CategoryId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Categories");
                 });
@@ -247,11 +309,13 @@ namespace LawCases.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Gender")
                         .IsRequired()
@@ -265,7 +329,8 @@ namespace LawCases.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("MaritalStatus")
                         .IsRequired()
@@ -316,11 +381,9 @@ namespace LawCases.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("FileName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("FileType")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<bool>("IsDeleted")
@@ -333,9 +396,10 @@ namespace LawCases.Migrations
 
                     b.HasIndex("CaseDateId");
 
-                    b.HasIndex("CaseId");
-
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("CaseId", "IsDeleted")
+                        .HasDatabaseName("IX_Documents_CaseId_IsDeleted");
 
                     b.ToTable("Documents");
                 });
@@ -356,7 +420,8 @@ namespace LawCases.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
 
                     b.Property<string>("Image")
                         .HasColumnType("longtext");
@@ -388,13 +453,13 @@ namespace LawCases.Migrations
                     b.HasOne("LawCases.Models.Client", "Client")
                         .WithMany("Cases")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("LawCases.Models.User", "User")
                         .WithMany("Cases")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Client");
@@ -407,7 +472,7 @@ namespace LawCases.Migrations
                     b.HasOne("LawCases.Models.Case", "Case")
                         .WithMany("CaseDates")
                         .HasForeignKey("CaseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Case");
@@ -416,9 +481,20 @@ namespace LawCases.Migrations
             modelBuilder.Entity("LawCases.Models.CasePayment", b =>
                 {
                     b.HasOne("LawCases.Models.Case", "Case")
-                        .WithOne("CasePayment")
-                        .HasForeignKey("LawCases.Models.CasePayment", "CaseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("CasePayment")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+                });
+
+            modelBuilder.Entity("LawCases.Models.CaseTransaction", b =>
+                {
+                    b.HasOne("LawCases.Models.Case", "Case")
+                        .WithMany("CaseTransactions")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Case");
@@ -429,7 +505,7 @@ namespace LawCases.Migrations
                     b.HasOne("LawCases.Models.User", "User")
                         .WithMany("Clients")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -446,7 +522,7 @@ namespace LawCases.Migrations
                     b.HasOne("LawCases.Models.Case", "Case")
                         .WithMany("Documents")
                         .HasForeignKey("CaseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("LawCases.Models.Client", "Client")
@@ -467,6 +543,8 @@ namespace LawCases.Migrations
                     b.Navigation("CaseDates");
 
                     b.Navigation("CasePayment");
+
+                    b.Navigation("CaseTransactions");
 
                     b.Navigation("Documents");
                 });

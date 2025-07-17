@@ -1,0 +1,222 @@
+﻿@page
+@model LawCases.Pages.Cases.DetailsModel
+@{
+    ViewData["Title"] = "Case Details";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>@ViewData["Title"]</h2>
+            <hr />
+        </div>
+    </div>
+
+    <!-- Case Basic Information -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4 class="mb-0">Case Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Title:</label>
+                        <p class="form-control-plaintext">@(Model.Case.Title ?? "N/A")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Court Name:</label>
+                        <p class="form-control-plaintext">@(Model.Case.CourtName ?? "N/A")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Case Code:</label>
+                        <p class="form-control-plaintext">@(Model.Case.CaseCode ?? "N/A")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Filing Number:</label>
+                        <p class="form-control-plaintext">@(Model.Case.FilingNumber ?? "N/A")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">FIR Number:</label>
+                        <p class="form-control-plaintext">@(Model.Case.FIRNumber ?? "N/A")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Case Number:</label>
+                        <p class="form-control-plaintext">@(Model.Case.CaseNumber ?? "N/A")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Start Date:</label>
+                        <p class="form-control-plaintext">
+                            @(Model.Case.StartDate == DateTime.MinValue
+                                                        ? "N/A"
+                                                        : Model.Case.StartDate.ToString("dd/MM/yyyy"))
+                        </p>
+
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Client:</label>
+                        <p class="form-control-plaintext">@Model.ClientName</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Category:</label>
+                        <p class="form-control-plaintext">@Model.CategoryName</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Status:</label>
+                        <p class="form-control-plaintext">
+                            <span class="badge bg-@(Model.Case.Status == "Open" ? "success" : Model.Case.Status == "Closed" ? "danger" : "warning")">
+                                @(Model.Case.Status ?? "N/A")
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Close Type:</label>
+                        <p class="form-control-plaintext">@(Model.Case.CloseType ?? "N/A")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Police Station:</label>
+                        <p class="form-control-plaintext">@(Model.Case.PoliceStation ?? "N/A")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">District:</label>
+                        <p class="form-control-plaintext">@(Model.Case.District ?? "N/A")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">FIR Year:</label>
+                        <p class="form-control-plaintext">
+                            @(Model.Case.FIRYear == 0 ? "N/A" : Model.Case.FIRYear.ToString())
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Judge Name:</label>
+                        <p class="form-control-plaintext">@(Model.Case.JudgeName ?? "N/A")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Information -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4 class="mb-0">Payment Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Total Amount:</label>
+                        <p class="form-control-plaintext">@(Model.Case.TotalAmount?.ToString("C") ?? "N/A")</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Initial Amount:</label>
+                        <p class="form-control-plaintext">@(Model.Case.InitialAmount?.ToString("C") ?? "N/A")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Case Date Information -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4 class="mb-0">Case Date Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Previous Date:</label>
+                        <p class="form-control-plaintext">@(Model.Case.PreviousDate?.ToString("dd/MM/yyyy") ?? "N/A")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Next Date:</label>
+                        <p class="form-control-plaintext">@(Model.Case.NextDate?.ToString("dd/MM/yyyy") ?? "N/A")</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Comment:</label>
+                        <p class="form-control-plaintext">@(Model.Case.Comment ?? "N/A")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Judge Remarks:</label>
+                        <p class="form-control-plaintext">@(Model.Case.JudgeRemarks ?? "N/A")</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Client Remarks:</label>
+                        <p class="form-control-plaintext">@(Model.Case.ClientRemarks ?? "N/A")</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Conclusion:</label>
+                        <p class="form-control-plaintext">@(Model.Case.Conclusion ?? "N/A")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Information -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4 class="mb-0">Document Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">File Name:</label>
+                        <p class="form-control-plaintext">@(Model.Case.FileName ?? "N/A")</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">File Type:</label>
+                        <p class="form-control-plaintext">@(Model.Case.FileType ?? "N/A")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row">
+        <div class="col-md-12">
+            <a asp-page="/cases/edit" asp-route-id="@Model.Case.CaseId" class="btn btn-primary">Edit Case</a>
+            <a asp-page="/cases/list" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+</div>

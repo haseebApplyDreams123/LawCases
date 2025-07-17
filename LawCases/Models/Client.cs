@@ -1,14 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LawCases.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace LawCases.Models
 {
-    public class Client
+    public class Client 
     {
         public int ClientId { get; set; }
 
         public int UserId { get; set; }
-
-        public User User { get; set; }
 
         [Required] public string FirstName { get; set; }
 
@@ -34,10 +33,11 @@ namespace LawCases.Models
 
         public DateTime? ModifiedOn { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
         public DateTime? DeletedOn { get; set; }
 
-        public ICollection<Case>? Cases { get; set; }
+        public virtual User User { get; set; }
+        public virtual ICollection<Case> Cases { get; set; } = new List<Case>();
     }
 }

@@ -1,0 +1,146 @@
+﻿@page
+@model LawCases.Pages.Cases.TransactionsModel
+@{
+    ViewData["Title"] = "Case Transactions";
+}
+
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="page-title">Case Transactions</h1>
+            <p class="page-subtitle">Financial transactions for case #@Model.CaseId</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Transaction History</h5>
+
+        @if (Model.CaseTransactions.Any())
+        {
+            <div class="table-responsive">
+                <table class="table transactions-table">
+                    <thead class="table-header">
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.CaseTransactions)
+                        {
+                            <tr>
+                                <td class="date-info">
+                                    <span class="date-primary">@item.TransactionDate.ToString("dd MMM yyyy")</span>
+    
+                                </td>
+                                <td>@(item.Amount % 1 == 0 ? item.Amount.ToString("0") : item.Amount.ToString("0.##"))</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Notes))
+                                    {
+                                        <div>@item.Notes</div>
+                                    }
+                                    <small class="text-muted">Last modified: @item.ModifiedOn?.ToString("dd MMM yyyy")</small>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn btn-sm btn-outline-warning"
+                                                onclick="showEditModal(@item.TransactionId, '@item.TransactionDate.ToString("yyyy-MM-dd")', '@item.TransactionDate.ToString("HH:mm")', @item.Amount, '@item.Notes')"
+                                                title="Edit Transaction">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="showDeleteModal(@item.TransactionId, '@item.TransactionDate.ToString("dd MMM yyyy")')"
+                                                title="Delete Transaction">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <h4>No Transactions Found</h4>
+                <p>No financial transactions have been recorded for this case yet.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the transaction from: <strong id="transactionToDelete"></strong>?</p>
+                <form id="deleteForm" method="post" asp-page-handler="DeleteTransaction">
+                    <input type="hidden" id="transactionIdToDelete" name="transactionIdToDelete" />
+                    <input type="hidden" name="caseId" value="@Model.CaseId" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="document.getElementById('deleteForm').submit();">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="editForm" method="post" asp-page-handler="UpdateTransaction">
+                <div class="modal-body">
+                    <input type="hidden" id="editTransactionId" name="TransactionId" />
+                    <input type="hidden" name="CaseId" value="@Model.CaseId" />
+
+                    <div class="form-group">
+                        <label for="editTransactionDate">Date</label>
+                        <input type="date" class="form-control" id="editTransactionDate" name="TransactionDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editAmount">Amount</label>
+                        <input type="number" step="0.01" class="form-control" id="editAmount" name="Amount" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editNotes">Notes</label>
+                        <textarea class="form-control" id="editNotes" name="Notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="/Pages/Cases/Transactions.cshtml.js"></script>
+}

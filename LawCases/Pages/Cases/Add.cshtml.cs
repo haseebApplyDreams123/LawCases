@@ -130,36 +130,31 @@ namespace LawCases.Pages.Cases
                         IsDeleted = false
                     };
 
-                    await _context.Cases.AddAsync(newCase);
-                    await _context.SaveChangesAsync();
-
-                    // Create CasePayment
+                   // Create CasePayment and link it to the case
                     var casePayment = new CasePayment
+                        {
+                            Case = newCase, // Use navigation property instead of CaseId
+                            TotalAmount = (int)(Case.TotalAmount ?? 0),
+                            InitialAmount = (int)(Case.InitialAmount ?? 0),
+                            CreatedOn = DateTime.UtcNow,
+                            IsDeleted = false
+                        };
+                    
+                    
+
+                    var CaseTransaction = new CaseTransaction
                     {
-                        CaseId = newCase.CaseId,
-                        TotalAmount = (decimal)Case.TotalAmount,
-                        InitialAmount = (decimal)Case.InitialAmount,
+                        Case = newCase,
+                        Amount = (int)(Case.TotalAmount ?? 0),
                         CreatedOn = DateTime.UtcNow,
                         IsDeleted = false
                     };
 
+                    // Add the main entities
+                    await _context.Cases.AddAsync(newCase);
                     await _context.CasePayments.AddAsync(casePayment);
+                    await _context.CaseTransactions.AddAsync(CaseTransaction);
 
-                    // Create CaseDate
-                    var caseDate = new CaseDate
-                    {
-                        CaseId = newCase.CaseId,
-                        PreviousDate = (DateTime)Case.PreviousDate,
-                        NextDate = (DateTime)Case.NextDate,
-                        Comment = Case.Comment,
-                        JudgeRemarks = Case.JudgeRemarks,
-                        ClientRemarks = Case.ClientRemarks,
-                        Conclusion = Case.Conclusion,
-                        CreatedOn = DateTime.UtcNow,
-                        IsDeleted = false
-                    };
-
-                    await _context.CaseDates.AddAsync(caseDate);
 
                     // Create Document if file information is provided
                     if (!string.IsNullOrEmpty(Case.FileName))
@@ -168,8 +163,7 @@ namespace LawCases.Pages.Cases
                         {
                             FileName = Case.FileName,
                             FileType = Case.FileType,
-                            CaseId = newCase.CaseId,
-                            CaseDateId = caseDate.CaseDateId,
+                            Case = newCase, // Use navigation property instead of CaseId/
                             ClientId = Case.ClientId,
                             CreatedOn = DateTime.UtcNow,
                             IsDeleted = false
@@ -178,6 +172,7 @@ namespace LawCases.Pages.Cases
                         await _context.Documents.AddAsync(document);
                     }
 
+                    // Save all changes at once - EF will handle the foreign key relationships
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
 

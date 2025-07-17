@@ -4,6 +4,7 @@ using LawCases.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LawCases.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250717092501_change transation in case")]
+    partial class changetransationincase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -362,6 +365,9 @@ namespace LawCases.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("DocumentId"));
 
+                    b.Property<int>("CaseDateId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CaseId")
                         .HasColumnType("int");
 
@@ -387,6 +393,8 @@ namespace LawCases.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("DocumentId");
+
+                    b.HasIndex("CaseDateId");
 
                     b.HasIndex("ClientId");
 
@@ -505,6 +513,12 @@ namespace LawCases.Migrations
 
             modelBuilder.Entity("LawCases.Models.Document", b =>
                 {
+                    b.HasOne("LawCases.Models.CaseDate", "CaseDate")
+                        .WithMany()
+                        .HasForeignKey("CaseDateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("LawCases.Models.Case", "Case")
                         .WithMany("Documents")
                         .HasForeignKey("CaseId")
@@ -518,6 +532,8 @@ namespace LawCases.Migrations
                         .IsRequired();
 
                     b.Navigation("Case");
+
+                    b.Navigation("CaseDate");
 
                     b.Navigation("Client");
                 });

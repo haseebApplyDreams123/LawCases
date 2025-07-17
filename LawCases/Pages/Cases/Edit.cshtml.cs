@@ -2,6 +2,7 @@ using LawCases.Models;
 using LawCases.Models.ViewModels;
 using LawCases.Models.ViewModels.LawCases.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -38,16 +39,14 @@ namespace LawCases.Pages.Cases
             }
 
             var userIdString = _userManager.GetUserId(User);
-            int userId = 0;
-            bool isParsed = int.TryParse(userIdString, out userId);
-
-            if (string.IsNullOrEmpty(userIdString) || !isParsed)
+            if (!int.TryParse(userIdString, out int userId))
             {
                 return RedirectToPage("/Account/Login", new { area = "Identity" });
             }
 
             // Get the case with related data
             var caseEntity = await _context.Cases
+                .Include(c => c.CaseTransactions)
                 .Include(c => c.CasePayment)
                 .Include(c => c.CaseDates)
                 .Include(c => c.Documents)
@@ -57,6 +56,9 @@ namespace LawCases.Pages.Cases
             {
                 return NotFound();
             }
+
+            // Get the latest payment (optional: use FirstOrDefault for earliest)
+            var payment = caseEntity.CasePayment?.OrderByDescending(p => p.CreatedOn).FirstOrDefault();
 
             // Get the latest case date
             var latestCaseDate = caseEntity.CaseDates?.OrderByDescending(cd => cd.CreatedOn).FirstOrDefault();
@@ -83,10 +85,8 @@ namespace LawCases.Pages.Cases
                 Category = caseEntity.Category,
                 JudgeName = caseEntity.JudgeName,
                 ClientId = caseEntity.ClientId,
-                TotalAmount = caseEntity.CasePayment?.TotalAmount,
-                InitialAmount = caseEntity.CasePayment?.InitialAmount,
-                PreviousDate = latestCaseDate?.PreviousDate,
-                NextDate = latestCaseDate?.NextDate,
+                TotalAmount = payment?.TotalAmount,
+                InitialAmount = payment?.InitialAmount,
                 Comment = latestCaseDate?.Comment,
                 JudgeRemarks = latestCaseDate?.JudgeRemarks,
                 ClientRemarks = latestCaseDate?.ClientRemarks,
@@ -118,7 +118,6 @@ namespace LawCases.Pages.Cases
         {
             if (!ModelState.IsValid)
             {
-                // Reload dropdown data
                 var userIdString = _userManager.GetUserId(User);
                 int userId = int.Parse(userIdString);
 
@@ -140,10 +139,7 @@ namespace LawCases.Pages.Cases
             }
 
             var userIdString2 = _userManager.GetUserId(User);
-            int userId2 = 0;
-            bool isParsed2 = int.TryParse(userIdString2, out userId2);
-
-            if (string.IsNullOrEmpty(userIdString2) || !isParsed2)
+            if (!int.TryParse(userIdString2, out int userId2))
             {
                 return RedirectToPage("/Account/Login", new { area = "Identity" });
             }
@@ -152,8 +148,8 @@ namespace LawCases.Pages.Cases
             {
                 try
                 {
-                    // Get existing case
                     var existingCase = await _context.Cases
+                        .Include(c => c.CaseTransactions)
                         .Include(c => c.CasePayment)
                         .Include(c => c.CaseDates)
                         .Include(c => c.Documents)
@@ -164,7 +160,7 @@ namespace LawCases.Pages.Cases
                         return NotFound();
                     }
 
-                    // Update Case
+                    // Update Case fields
                     existingCase.Title = Case.Title;
                     existingCase.CourtName = Case.CourtName;
                     existingCase.CaseCode = Case.CaseCode;
@@ -184,61 +180,64 @@ namespace LawCases.Pages.Cases
 
                     _context.Cases.Update(existingCase);
 
-                    // Update or Create CasePayment
-                    if (existingCase.CasePayment != null)
+                    // Handle CasePayment (1-to-many: use latest or first)
+                    var existingPayment = existingCase.CasePayment.OrderByDescending(p => p.CreatedOn).FirstOrDefault();
+                    var firstPayment = existingCase.CaseTransactions.OrderBy(cd => cd.CreatedOn).FirstOrDefault();
+
+                    if (existingPayment != null)
                     {
-                        existingCase.CasePayment.TotalAmount = (Case.TotalAmount ?? 0);
-                        existingCase.CasePayment.InitialAmount = (Case.InitialAmount ?? 0);
-                        existingCase.CasePayment.ModifiedOn = DateTime.UtcNow;
-                        _context.CasePayments.Update(existingCase.CasePayment);
+                        existingPayment.TotalAmount = (int?)(Case.TotalAmount ?? 0);
+                        existingPayment.InitialAmount = (int?)(Case.InitialAmount ?? 0);
+                        existingPayment.ModifiedOn = DateTime.UtcNow;
+                        _context.CasePayments.Update(existingPayment);
                     }
+
                     else if (Case.TotalAmount.HasValue || Case.InitialAmount.HasValue)
                     {
-                        var casePayment = new CasePayment
+                        var newPayment = new CasePayment
                         {
                             CaseId = existingCase.CaseId,
-                            TotalAmount = (decimal)(Case.TotalAmount ?? 0),
-                            InitialAmount = (decimal)(Case.InitialAmount ?? 0),
+                            TotalAmount = (int?)(Case.TotalAmount ?? 0),
+                            InitialAmount = (int?)(Case.InitialAmount ?? 0),
                             CreatedOn = DateTime.UtcNow,
                             IsDeleted = false
                         };
-                        await _context.CasePayments.AddAsync(casePayment);
+                        var paymentTransaction = new CaseTransaction
+                        {
+                            CaseId = existingCase.CaseId,
+                            Amount = (int)Case.InitialAmount,
+                            CreatedOn = DateTime.UtcNow
+                        };
+                        await _context.CasePayments.AddAsync(newPayment);
+                        await _context.CaseTransactions.AddAsync(paymentTransaction);
                     }
 
-                    // Get the latest case date or create new one
+                    if (firstPayment != null)
+                    {
+                        firstPayment.Amount = (int)Case.InitialAmount;
+                        firstPayment.ModifiedOn = DateTime.UtcNow;
+                        _context.CaseTransactions.Update(firstPayment);
+                    }
+
+
+                    else if (Case.TotalAmount.HasValue || Case.InitialAmount.HasValue)
+                    {
+                        var paymentTransaction = new CaseTransaction
+                        {
+                            CaseId = existingCase.CaseId,
+                            Amount = (int)Case.InitialAmount,
+                            CreatedOn = DateTime.UtcNow
+                        };
+                        await _context.CaseTransactions.AddAsync(paymentTransaction);
+                    }
+
+
+                    // Handle CaseDate
                     var latestCaseDate = existingCase.CaseDates?.OrderByDescending(cd => cd.CreatedOn).FirstOrDefault();
 
-                    if (latestCaseDate != null)
-                    {
-                        latestCaseDate.PreviousDate = Case.PreviousDate ?? DateTime.Now;
-                        latestCaseDate.NextDate = Case.NextDate ?? DateTime.Now;
-                        latestCaseDate.Comment = Case.Comment;
-                        latestCaseDate.JudgeRemarks = Case.JudgeRemarks;
-                        latestCaseDate.ClientRemarks = Case.ClientRemarks;
-                        latestCaseDate.Conclusion = Case.Conclusion;
-                        latestCaseDate.ModifiedOn = DateTime.UtcNow;
-                        _context.CaseDates.Update(latestCaseDate);
-                    }
-                    else if (Case.PreviousDate.HasValue || Case.NextDate.HasValue ||
-                             !string.IsNullOrEmpty(Case.Comment) || !string.IsNullOrEmpty(Case.JudgeRemarks) ||
-                             !string.IsNullOrEmpty(Case.ClientRemarks) || !string.IsNullOrEmpty(Case.Conclusion))
-                    {
-                        var caseDate = new CaseDate
-                        {
-                            CaseId = existingCase.CaseId,
-                            PreviousDate = Case.PreviousDate ?? DateTime.Now,
-                            NextDate = Case.NextDate ?? DateTime.Now,
-                            Comment = Case.Comment,
-                            JudgeRemarks = Case.JudgeRemarks,
-                            ClientRemarks = Case.ClientRemarks,
-                            Conclusion = Case.Conclusion,
-                            CreatedOn = DateTime.UtcNow,
-                            IsDeleted = false
-                        };
-                        await _context.CaseDates.AddAsync(caseDate);
-                    }
+         
 
-                    // Update or Create Document
+                    // Handle Document
                     if (!string.IsNullOrEmpty(Case.FileName))
                     {
                         var existingDocument = existingCase.Documents?.FirstOrDefault();
@@ -256,7 +255,7 @@ namespace LawCases.Pages.Cases
                                 FileName = Case.FileName,
                                 FileType = Case.FileType,
                                 CaseId = existingCase.CaseId,
-                                CaseDateId = (int)(latestCaseDate?.CaseDateId),
+                                //CaseDateId = latestCaseDate?.CaseDateId ?? 0,
                                 ClientId = Case.ClientId,
                                 CreatedOn = DateTime.UtcNow,
                                 IsDeleted = false
@@ -277,5 +276,9 @@ namespace LawCases.Pages.Cases
                 }
             }
         }
+
+
+
+
     }
 }

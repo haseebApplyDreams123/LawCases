@@ -182,7 +182,7 @@
     color: #2e7d32;
 }
 
-.badge-status-block {
+.badge-status-temporary {
     background: #fff3e0;
     color: #f57c00;
 }
@@ -383,7 +383,7 @@
     width: 100%;
 }
 
-.progress-block {
+.progress-temporary {
     background-color: #ffc107;
     width: 50%;
 }

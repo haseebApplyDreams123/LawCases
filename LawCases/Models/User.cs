@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LawCases.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace LawCases.Models
 {
-    public class User
+    public class User 
     {
         public int UserId { get; set; }
 
@@ -18,12 +19,12 @@ namespace LawCases.Models
 
         public DateTime? ModifiedOn { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
         public DateTime? DeletedOn { get; set; }
 
-        public ICollection<Client>? Clients { get; set; }
-
-        public ICollection<Case>? Cases { get; set; }
+        // navigation properties
+        public virtual ICollection<Client> Clients { get; set; } = new List<Client>();
+        public virtual ICollection<Case> Cases { get; set; } = new List<Case>();
     }
 }

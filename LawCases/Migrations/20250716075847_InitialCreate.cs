@@ -21,9 +21,9 @@ namespace LawCases.Migrations
                 {
                     CategoryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: false)
+                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Description = table.Column<string>(type: "longtext", nullable: true)
+                    Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -44,7 +44,7 @@ namespace LawCases.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Email = table.Column<string>(type: "varchar(255)", nullable: false)
+                    Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PasswordHash = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -68,14 +68,14 @@ namespace LawCases.Migrations
                     ClientId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    FirstName = table.Column<string>(type: "longtext", nullable: false)
+                    FirstName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    LastName = table.Column<string>(type: "longtext", nullable: false)
+                    LastName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Image = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     DateOfBirth = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Email = table.Column<string>(type: "longtext", nullable: false)
+                    Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Username = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -100,7 +100,7 @@ namespace LawCases.Migrations
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -110,11 +110,11 @@ namespace LawCases.Migrations
                 {
                     CaseId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Title = table.Column<string>(type: "longtext", nullable: false)
+                    Title = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    CourtName = table.Column<string>(type: "longtext", nullable: false)
+                    CourtName = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    CaseCode = table.Column<string>(type: "longtext", nullable: false)
+                    CaseCode = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     FilingNumber = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -123,16 +123,16 @@ namespace LawCases.Migrations
                     CaseNumber = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Status = table.Column<string>(type: "longtext", nullable: false)
+                    Status = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CloseType = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    PoliceStation = table.Column<string>(type: "longtext", nullable: false)
+                    PoliceStation = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    District = table.Column<string>(type: "longtext", nullable: false)
+                    District = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     FIRYear = table.Column<int>(type: "int", nullable: false),
-                    Category = table.Column<string>(type: "longtext", nullable: false)
+                    Category = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     JudgeName = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -151,13 +151,13 @@ namespace LawCases.Migrations
                         column: x => x.ClientId,
                         principalTable: "Clients",
                         principalColumn: "ClientId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Cases_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -191,7 +191,7 @@ namespace LawCases.Migrations
                         column: x => x.CaseId,
                         principalTable: "Cases",
                         principalColumn: "CaseId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -199,6 +199,8 @@ namespace LawCases.Migrations
                 name: "CasePayments",
                 columns: table => new
                 {
+                    PaymentId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     CaseId = table.Column<int>(type: "int", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     InitialAmount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
@@ -209,13 +211,13 @@ namespace LawCases.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CasePayments", x => x.CaseId);
+                    table.PrimaryKey("PK_CasePayments", x => x.PaymentId);
                     table.ForeignKey(
                         name: "FK_CasePayments_Cases_CaseId",
                         column: x => x.CaseId,
                         principalTable: "Cases",
                         principalColumn: "CaseId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -251,7 +253,7 @@ namespace LawCases.Migrations
                         column: x => x.CaseId,
                         principalTable: "Cases",
                         principalColumn: "CaseId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Documents_Clients_ClientId",
                         column: x => x.ClientId,
@@ -262,9 +264,24 @@ namespace LawCases.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CaseDates_CaseId",
+                name: "IX_CaseDates_CaseId_IsDeleted",
                 table: "CaseDates",
-                column: "CaseId");
+                columns: new[] { "CaseId", "IsDeleted" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CaseDates_NextDate",
+                table: "CaseDates",
+                column: "NextDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CasePayments_CaseId_IsDeleted",
+                table: "CasePayments",
+                columns: new[] { "CaseId", "IsDeleted" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cases_CaseCode",
+                table: "Cases",
+                column: "CaseCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cases_ClientId",
@@ -272,9 +289,15 @@ namespace LawCases.Migrations
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cases_UserId",
+                name: "IX_Cases_UserId_IsDeleted",
                 table: "Cases",
-                column: "UserId");
+                columns: new[] { "UserId", "IsDeleted" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_Name",
+                table: "Categories",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_UserId",
@@ -287,9 +310,9 @@ namespace LawCases.Migrations
                 column: "CaseDateId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Documents_CaseId",
+                name: "IX_Documents_CaseId_IsDeleted",
                 table: "Documents",
-                column: "CaseId");
+                columns: new[] { "CaseId", "IsDeleted" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Documents_ClientId",

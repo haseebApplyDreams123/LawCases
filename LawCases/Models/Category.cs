@@ -1,6 +1,6 @@
 ﻿namespace LawCases.Models
 {
-    public class Category
+    public class Category 
     {
         public int CategoryId { get; set; }
 
@@ -12,7 +12,7 @@
 
         public DateTime? ModifiedOn { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
         public DateTime? DeletedOn { get; set; }
     }

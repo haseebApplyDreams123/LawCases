@@ -42,7 +42,7 @@ namespace LawCases.Pages.Clients
                 return Page();
             }
 
-            var userIdString = this.GetCurrentUserId();
+            var userIdString = _userManager.GetUserId(User);
 
             int userId = 0;
             bool isParsed = int.TryParse(userIdString, out userId);

@@ -147,56 +147,6 @@
             </div>
         </div>
 
-        <!-- Case Date Information -->
-        <h4>Case Date Information</h4>
-        <hr />
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Case.PreviousDate" class="control-label">Previous Date <span class="text-muted">(Optional)</span></label>
-                    <input asp-for="Case.PreviousDate" type="date" class="form-control" />
-                    <span asp-validation-for="Case.PreviousDate" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="Case.NextDate" class="control-label">Next Date <span class="text-muted">(Optional)</span></label>
-                    <input asp-for="Case.NextDate" type="date" class="form-control" />
-                    <span asp-validation-for="Case.NextDate" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Case.Comment" class="control-label">Comment <span class="text-muted">(Optional)</span></label>
-                    <textarea asp-for="Case.Comment" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="Case.Comment" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Case.JudgeRemarks" class="control-label">Judge Remarks <span class="text-muted">(Optional)</span></label>
-                    <textarea asp-for="Case.JudgeRemarks" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="Case.JudgeRemarks" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Case.ClientRemarks" class="control-label">Client Remarks <span class="text-muted">(Optional)</span></label>
-                    <textarea asp-for="Case.ClientRemarks" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="Case.ClientRemarks" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Case.Conclusion" class="control-label">Conclusion <span class="text-muted">(Optional)</span></label>
-                    <textarea asp-for="Case.Conclusion" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="Case.Conclusion" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-
         <!-- Document Information -->
         <h4>Document Information <span class="text-muted">(Optional)</span></h4>
         <hr />

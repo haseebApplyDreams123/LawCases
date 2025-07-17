@@ -1,23 +1,28 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LawCases.Data;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LawCases.Models
 {
-    public class CasePayment
+    public class CasePayment 
     {
-        [Key] public int CaseId { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // ✅ This ensures AUTO_INCREMENT
+        public int PaymentId { get; set; }
+        public int CaseId { get; set; }
 
-        public decimal TotalAmount { get; set; }
+        public int? TotalAmount { get; set; }
 
-        public decimal InitialAmount { get; set; }
+        public int? InitialAmount { get; set; }
 
         public DateTime CreatedOn { get; set; }
 
         public DateTime? ModifiedOn { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
         public DateTime? DeletedOn { get; set; }
 
-        public Case Case { get; set; }
+        public virtual  Case Case { get; set; }
     }
 }

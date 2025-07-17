@@ -1,0 +1,171 @@
+﻿@page
+@model LawCases.Pages.Cases.DatesModel
+@{
+    ViewData["Title"] = "Case Dates";
+}
+
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="page-title">Case Dates</h1>
+            <p class="page-subtitle">Hearing dates for case #@Model.CaseId</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Scheduled Dates</h5>
+
+        @if (Model.CaseDates.Any())
+        {
+            <div class="table-responsive">
+                <table class="table cases-table">
+                    <thead class="table-header">
+                        <tr>
+                            <th>Date</th>
+                            <th>Details</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.CaseDates)
+                        {
+                            <tr>
+                                <td class="date-info">
+                                    <span class="date-primary">@item.NextDate.ToString("dd MMM yyyy")</span>
+                                    <span class="date-secondary">@item.NextDate.ToString("hh:mm tt")</span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Comment))
+                                    {
+                                        <div class="mb-1"><small class="text-muted">@item.Comment</small></div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.JudgeRemarks))
+                                    {
+                                        <div><strong>Judge:</strong> @item.JudgeRemarks</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.ClientRemarks))
+                                    {
+                                        <div><strong>Client:</strong> @item.ClientRemarks</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.Conclusion))
+                                    {
+                                        <div class="mt-1"><strong>Conclusion:</strong> @item.Conclusion</div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn btn-sm btn-outline-warning"
+                                                onclick="showEditModal(@item.CaseDateId, '@item.NextDate.ToString("yyyy-MM-dd")', '@item.NextDate.ToString("HH:mm")', '@item.Comment', '@item.JudgeRemarks', '@item.ClientRemarks', '@item.Conclusion')"
+                                                title="Edit Date">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="showDeleteModal(@item.CaseDateId, '@item.NextDate.ToString("dd MMM yyyy")')"
+                                                title="Delete Date">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-calendar-x"></i>
+                </div>
+                <h4>No Dates Found</h4>
+                <p>No hearing dates have been scheduled for this case yet.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Date</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the date: <strong id="dateToDelete"></strong>?</p>
+                <form id="deleteForm" method="post" asp-page-handler="DeleteDate">
+                    <input type="hidden" id="dateIdToDelete" name="dateIdToDelete" />
+                    <input type="hidden" name="caseId" value="@Model.CaseId" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="document.getElementById('deleteForm').submit();">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Date</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="editForm" method="post" asp-page-handler="UpdateDate">
+                <div class="modal-body">
+                    <input type="hidden" id="editCaseDateId" name="CaseDateId" />
+                    <input type="hidden" name="CaseId" value="@Model.CaseId" />
+
+                    <div class="form-group">
+                        <label for="editNextDate">Date</label>
+                        <input type="date" class="form-control" id="editNextDate" name="NextDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editNextTime">Time</label>
+                        <input type="time" class="form-control" id="editNextTime" name="NextTime" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editComment">Comment</label>
+                        <textarea class="form-control" id="editComment" name="Comment" rows="2"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editJudgeRemarks">Judge Remarks</label>
+                        <textarea class="form-control" id="editJudgeRemarks" name="JudgeRemarks" rows="2"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editClientRemarks">Client Remarks</label>
+                        <textarea class="form-control" id="editClientRemarks" name="ClientRemarks" rows="2"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editConclusion">Conclusion</label>
+                        <textarea class="form-control" id="editConclusion" name="Conclusion" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/Pages/Cases/Dates.cshtml.js"></script>
+}
