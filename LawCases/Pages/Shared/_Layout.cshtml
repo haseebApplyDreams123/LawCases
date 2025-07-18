@@ -41,23 +41,23 @@
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
+        @* <div class="sidebar-header">
             <h4>Quick Access</h4>
             <p>Navigate through your legal workspace</p>
-        </div>
+        </div> *@
 
         <div class="sidebar-menu">
-            <div class="menu-section">
+            @* <div class="menu-section">
                 <h6>Main Navigation</h6>
                 <a href="#" class="menu-item active" data-title="Dashboard">
                     <i class="fas fa-tachometer-alt"></i>
                     <span class="menu-text">Dashboard</span>
                 </a>
-            </div>
+            </div> *@
 
             <div class="menu-section">
                 <h6>Case Management</h6>
-                <a href="#" class="menu-item" data-title="Today's Cases">
+                <a href="/Cases/Todays" class="menu-item" data-title="Today's Cases">
                     <i class="fas fa-calendar-days"></i>
                     <span class="menu-text">Today's Cases</span>
                 </a>
@@ -69,13 +69,9 @@
                     <i class="fas fa-copy"></i>
                     <span class="menu-text">All Cases</span>
                 </a>
-                <a href="#" class="menu-item" data-title="Closed Cases">
-                    <i class="fas fa-check-double"></i>
-                    <span class="menu-text">Closed Cases</span>
-                </a>
-                <a href="#" class="menu-item" data-title="Unscheduled Cases">
+                <a href="/Cases/Scheduled" class="menu-item" data-title="Unscheduled Cases">
                     <i class="fas fa-calendar-xmark"></i>
-                    <span class="menu-text">Unscheduled Cases</span>
+                    <span class="menu-text">Scheduled Cases 7 days</span>
                 </a>
             </div>
 
@@ -105,10 +101,11 @@
                     <i class="fas fa-question-circle"></i>
                     <span class="menu-text">Help & Support</span>
                 </a>
-                <a class="menu-item" asp-page="/Account/Logout" asp-page-handler="Post"  data-title="Logout">
+                <a href="/Account/Logout" class="menu-item" data-title="Logout">
                     <i class="fas fa-right-from-bracket"></i>
                     <span class="menu-text">Logout</span>
                 </a>
+              
             </div>
         </div>
     </div>
@@ -126,11 +123,11 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer bg-dark text-white">
+    @* <footer class="footer bg-dark text-white">
         <div class="container">
             <p>&copy; 2025 - LawCases Management System - <a href="#" class="text-light">Privacy Policy</a></p>
         </div>
-    </footer>
+    </footer> *@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

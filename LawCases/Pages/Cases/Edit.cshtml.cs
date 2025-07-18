@@ -77,8 +77,6 @@ namespace LawCases.Pages.Cases
                 FIRNumber = caseEntity.FIRNumber,
                 CaseNumber = caseEntity.CaseNumber,
                 StartDate = caseEntity.StartDate,
-                Status = caseEntity.Status,
-                CloseType = caseEntity.CloseType,
                 PoliceStation = caseEntity.PoliceStation,
                 District = caseEntity.District,
                 FIRYear = caseEntity.FIRYear,
@@ -116,27 +114,6 @@ namespace LawCases.Pages.Cases
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                var userIdString = _userManager.GetUserId(User);
-                int userId = int.Parse(userIdString);
-
-                var clients = await _context.Clients
-                    .Where(c => c.UserId == userId && !c.IsDeleted)
-                    .Select(c => new { c.ClientId, FullName = c.FirstName + " " + c.LastName })
-                    .ToListAsync();
-
-                ClientSelectList = new SelectList(clients, "ClientId", "FullName", Case.ClientId);
-
-                var categories = await _context.Categories
-                    .Where(c => !c.IsDeleted)
-                    .Select(c => new { c.Name, c.Description })
-                    .ToListAsync();
-
-                CategorySelectList = new SelectList(categories, "Name", "Name", Case.Category);
-
-                return Page();
-            }
 
             var userIdString2 = _userManager.GetUserId(User);
             if (!int.TryParse(userIdString2, out int userId2))
@@ -168,8 +145,7 @@ namespace LawCases.Pages.Cases
                     existingCase.FIRNumber = Case.FIRNumber;
                     existingCase.CaseNumber = Case.CaseNumber;
                     existingCase.StartDate = Case.StartDate;
-                    existingCase.Status = Case.Status;
-                    existingCase.CloseType = Case.CloseType;
+                    existingCase.Status = "Open";
                     existingCase.PoliceStation = Case.PoliceStation;
                     existingCase.District = Case.District;
                     existingCase.FIRYear = Case.FIRYear;
@@ -255,7 +231,6 @@ namespace LawCases.Pages.Cases
                                 FileName = Case.FileName,
                                 FileType = Case.FileType,
                                 CaseId = existingCase.CaseId,
-                                //CaseDateId = latestCaseDate?.CaseDateId ?? 0,
                                 ClientId = Case.ClientId,
                                 CreatedOn = DateTime.UtcNow,
                                 IsDeleted = false

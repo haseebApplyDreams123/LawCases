@@ -13,6 +13,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         new MySqlServerVersion(new Version(8, 0, 36))
     ));
 
+
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -20,11 +21,13 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
-options.AccessDeniedPath = "/Account/AccessDenied";
-options.ExpireTimeSpan = TimeSpan.FromDays(30);
-options.SlidingExpiration = true;
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Use Always in production
+        options.Cookie.SameSite = SameSiteMode.Strict; // Important for cross-tab protection
     });
-
 //Add authorization
 builder.Services.AddAuthorization(options =>
 {
@@ -33,19 +36,13 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-
-
-// Add session services
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
 // Add other services
 builder.Services.AddRazorPages(options =>
 {
+    // Set default authorization policy for all pages
+    options.Conventions.AuthorizeFolder("/");
+
+    // Allow anonymous access to specific pages
     options.Conventions.AllowAnonymousToPage("/Account/Login");
     options.Conventions.AllowAnonymousToPage("/Account/Register");
     options.Conventions.AllowAnonymousToPage("/Client/Add");
@@ -74,8 +71,6 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
-app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 

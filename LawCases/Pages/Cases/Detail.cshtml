@@ -127,13 +127,13 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Total Amount:</label>
-                        <p class="form-control-plaintext">@(Model.Case.TotalAmount?.ToString("C") ?? "N/A")</p>
+                        <p class="form-control-plaintext">@(Model.Case.TotalAmount?.ToString("N0") ?? "N/A")</p>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Initial Amount:</label>
-                        <p class="form-control-plaintext">@(Model.Case.InitialAmount?.ToString("C") ?? "N/A")</p>
+                        <p class="form-control-plaintext">@(Model.Case.InitialAmount?.ToString("N0") ?? "N/A")</p>
                     </div>
                 </div>
             </div>

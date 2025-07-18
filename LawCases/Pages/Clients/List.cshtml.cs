@@ -106,6 +106,7 @@ namespace LawCases.Pages.Clients
             switch (SortBy.ToLower())
             {
                 case "firstname":
+                default:
                     query = SortOrder == "asc" ? query.OrderBy(c => c.FirstName) : query.OrderByDescending(c => c.FirstName);
                     break;
                 case "lastname":
@@ -118,7 +119,6 @@ namespace LawCases.Pages.Clients
                     query = SortOrder == "asc" ? query.OrderBy(c => c.DateOfBirth) : query.OrderByDescending(c => c.DateOfBirth);
                     break;
                 case "createdon":
-                default:
                     query = SortOrder == "asc" ? query.OrderBy(c => c.CreatedOn) : query.OrderByDescending(c => c.CreatedOn);
                     break;
             }
@@ -293,6 +293,35 @@ namespace LawCases.Pages.Clients
 
                 return new JsonResult(new { success = false, message = "An error occurred while exporting clients" });
             }
+        }
+
+        // Helper method to generate sort URLs
+        public string GetSortUrl(string sortBy)
+        {
+            var queryParams = new List<string>();
+
+            if (!string.IsNullOrEmpty(SearchTerm))
+                queryParams.Add($"searchTerm={Uri.EscapeDataString(SearchTerm)}");
+
+            if (!string.IsNullOrEmpty(GenderFilter))
+                queryParams.Add($"genderFilter={Uri.EscapeDataString(GenderFilter)}");
+
+            if (!string.IsNullOrEmpty(MaritalStatusFilter))
+                queryParams.Add($"maritalStatusFilter={Uri.EscapeDataString(MaritalStatusFilter)}");
+
+            // Toggle sort order if clicking the same column
+            string newSortOrder = "asc";
+            if (SortBy == sortBy)
+            {
+                newSortOrder = SortOrder == "asc" ? "desc" : "asc";
+            }
+
+            queryParams.Add($"sortBy={Uri.EscapeDataString(sortBy)}");
+            queryParams.Add($"sortOrder={Uri.EscapeDataString(newSortOrder)}");
+            queryParams.Add($"pageSize={PageSize}");
+            queryParams.Add($"pageNumber={1}"); // Reset to first page when sorting
+
+            return $"/Clients/List?{string.Join("&", queryParams)}";
         }
 
         // Helper method to get pagination info

@@ -50,12 +50,13 @@
                     <input asp-for="Case.CaseNumber" class="form-control" />
                     <span asp-validation-for="Case.CaseNumber" class="text-danger"></span>
                 </div>
-
                 <div class="form-group">
-                    <label asp-for="Case.StartDate" class="control-label"></label>
-                    <input asp-for="Case.StartDate" type="date" class="form-control" />
-                    <span asp-validation-for="Case.StartDate" class="text-danger"></span>
+                    <label asp-for="Case.JudgeName" class="control-label">Judge Name <span class="text-muted">(Optional)</span></label>
+                    <input asp-for="Case.JudgeName" class="form-control" />
+                    <span asp-validation-for="Case.JudgeName" class="text-danger"></span>
                 </div>
+
+
             </div>
 
             <div class="col-md-6">
@@ -76,27 +77,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="Case.Status" class="control-label"></label>
-                    <select asp-for="Case.Status" class="form-control">
-                        <option value="">Select Status</option>
-                        <option value="Open">Open</option>
-                        <option value="Block">Block</option>
-                        <option value="Closed">Closed</option>
-                    </select>
-                    <span asp-validation-for="Case.Status" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="Case.CloseType" class="control-label">Close Type <span class="text-muted">(Optional - only if Status is Closed)</span></label>
-                    <select asp-for="Case.CloseType" class="form-control">
-                        <option value="">Select Close Type</option>
-                        <option value="Temporary">Temporary</option>
-                        <option value="Permanent">Permanent</option>
-                    </select>
-                    <span asp-validation-for="Case.CloseType" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
                     <label asp-for="Case.PoliceStation" class="control-label">Police Station <span class="text-muted">(Optional)</span></label>
                     <input asp-for="Case.PoliceStation" class="form-control" />
                     <span asp-validation-for="Case.PoliceStation" class="text-danger"></span>
@@ -113,19 +93,16 @@
                     <input asp-for="Case.FIRYear" type="number" class="form-control" />
                     <span asp-validation-for="Case.FIRYear" class="text-danger"></span>
                 </div>
-            </div>
-        </div>
-
-        <!-- Judge Information -->
-        <div class="row">
-            <div class="col-md-12">
                 <div class="form-group">
-                    <label asp-for="Case.JudgeName" class="control-label">Judge Name <span class="text-muted">(Optional)</span></label>
-                    <input asp-for="Case.JudgeName" class="form-control" />
-                    <span asp-validation-for="Case.JudgeName" class="text-danger"></span>
+                    <label asp-for="Case.StartDate" class="control-label"></label>
+                    <input asp-for="Case.StartDate" type="date" class="form-control" />
+                    <span asp-validation-for="Case.StartDate" class="text-danger"></span>
                 </div>
             </div>
         </div>
+
+   
+     
 
         <!-- Payment Information -->
         <h4>Payment Information</h4>

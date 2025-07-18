@@ -1,0 +1,249 @@
+﻿@page
+@model LawCases.Pages.Cases.Next7DaysModel
+@{
+    ViewData["Title"] = "Next 7 Days Cases";
+}
+
+<link rel="stylesheet" href="~/css/global.css" />
+<link rel="stylesheet" href="~/css/cases-list.css" />
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2 class="page-title">
+                    <i class="fas fa-calendar-week text-primary me-2"></i>
+                    Next 7 Days Cases
+                </h2>
+                <p class="page-subtitle">
+                    Cases scheduled from @DateTime.Today.ToString("MMMM dd, yyyy") to
+                    @DateTime.Today.AddDays(7).ToString("MMMM dd, yyyy")
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-filter me-2"></i>
+                Filter & Search
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-search me-1"></i>
+                            Search Cases
+                        </label>
+                        <input type="text" name="searchTerm" value="@Model.SearchTerm"
+                               class="form-control" placeholder="Search by title, case code, client name..." />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-tags me-1"></i>
+                            Category
+                        </label>
+                        <select name="categoryFilter" class="form-control">
+                            <option value="">All Categories</option>
+                            @foreach (var category in Model.CategorySelectList)
+                            {
+                                <option value="@category.Text"
+                                        selected="@(Model.CategoryFilter == category.Text)">
+                                    @category.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="form-label d-block">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-1"></i>
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cases Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-table me-2"></i>
+                Upcoming Cases (@Model.Cases.Count() results)
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Cases.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover cases-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th>Case Information</th>
+                                <th>Client & Court</th>
+                                <th>Case Details</th>
+                                <th>Dates</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Days Left</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var caseItem in Model.Cases)
+                            {
+                                var daysLeft = caseItem.NextDate.HasValue
+                                ? (caseItem.NextDate.Value.Date - DateTime.Today.Date).Days
+                                : (int?)null;
+
+                                <tr>
+                                    <td>
+                                        <div class="case-info">
+                                            <div class="case-icon bg-@(caseItem.Category.ToLower() == "criminal" ? "danger" : caseItem.Category.ToLower() == "civil" ? "primary" : caseItem.Category.ToLower() == "family" ? "warning" : "success")">
+                                                <i class="fas fa-@(caseItem.Category.ToLower() == "criminal" ? "handcuffs" : caseItem.Category.ToLower() == "civil" ? "balance-scale" : caseItem.Category.ToLower() == "family" ? "home" : "building")"></i>
+                                            </div>
+                                            <div class="case-details">
+                                                <h6 class="case-title">@caseItem.Title</h6>
+                                                <small class="case-subtitle">@caseItem.CaseCode</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="case-details">
+                                            <div class="detail-item">
+                                                <i class="fas fa-user text-muted me-1"></i>
+                                                <span class="detail-value">@caseItem.ClientName</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-university text-muted me-1"></i>
+                                                <span class="detail-value">@caseItem.CourtName</span>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(caseItem.JudgeName))
+                                            {
+                                                <div class="detail-item">
+                                                    <i class="fas fa-gavel text-muted me-1"></i>
+                                                    <span class="detail-value">@caseItem.JudgeName</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="case-details">
+                                            <div class="detail-item">
+                                                <span class="detail-label">Category:</span>
+                                                <span class="badge badge-category-@caseItem.Category.ToLower()">
+                                                    @caseItem.Category
+                                                </span>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(caseItem.CaseNumber))
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Case #:</span>
+                                                    <span class="detail-value">@caseItem.CaseNumber</span>
+                                                </div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(caseItem.FilingNumber))
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Filing:</span>
+                                                    <span class="detail-value">@caseItem.FilingNumber</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="date-info">
+                                            <div class="detail-item">
+                                                <span class="detail-label">Start:</span>
+                                                <span class="date-primary">@caseItem.StartDate.ToString("MMM dd, yyyy")</span>
+                                            </div>
+                                            @if (caseItem.NextDate.HasValue)
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-label">Next:</span>
+                                                    <span class="@(daysLeft <= 1 ? "date-overdue" : daysLeft <= 3 ? "date-due-soon" : "date-primary")">
+                                                        @caseItem.NextDate.Value.ToString("MMM dd, yyyy")
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="amount-info">
+                                            @if (caseItem.TotalAmount > 0)
+                                            {
+                                                <span class="amount-primary">@((int)caseItem.TotalAmount)</span>
+                                                @if (caseItem.InitialAmount > 0)
+                                                {
+                                                    <small class="amount-secondary">@((int)caseItem.InitialAmount)</small>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not set</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-info">
+                                            <p class="form-control-plaintext">
+                                                <span class="badge bg-@(caseItem.Status == "Open" ? "success" : caseItem.Status == "Closed" ? "danger" : "warning")">
+                                                    @(caseItem.Status ?? "N/A")
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="days-left-info">
+                                            @if (daysLeft == 0)
+                                            {
+                                                <span class="badge bg-danger">Today</span>
+                                            }
+                                            else if (daysLeft == 1)
+                                            {
+                                                <span class="badge bg-warning">Tomorrow</span>
+                                            }
+                                            else if (daysLeft > 1)
+                                            {
+                                                <span class="badge bg-info">@daysLeft days</span>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h4>No Cases in Next 7 Days</h4>
+                    <p>
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.CategoryFilter))
+                        {
+                            <span>No cases match your search criteria for the next 7 days. Try adjusting your filters.</span>
+                        }
+                        else
+                        {
+                            <span>You have no cases scheduled in the next 7 days.</span>
+                        }
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

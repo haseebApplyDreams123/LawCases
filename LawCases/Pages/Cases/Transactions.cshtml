@@ -6,12 +6,24 @@
 
 <div class="page-header">
     <div class="row align-items-center">
-        <div class="col">
-            <h1 class="page-title">Case Transactions</h1>
+        <div class="col-md-6">
+            <h2 class="page-title">
+                <i class="fas fa-calendar-alt text-primary me-2"></i>
+                Case Transactions
+            </h2>
             <p class="page-subtitle">Financial transactions for case #@Model.CaseId</p>
+        </div>
+        <div class="col-md-6 text-end">
+            <button type="button" class="btn btn-primary btn-large"
+                    onclick="showTransactionModal(@Model.CaseId)"
+                    title="Add Transaction">
+                <i class="fas fa-plus me-2"></i>
+                Add Transaction
+            </button>
         </div>
     </div>
 </div>
+
 
 <div class="card">
     <div class="card-body">
@@ -75,6 +87,55 @@
                 <p>No financial transactions have been recorded for this case yet.</p>
             </div>
         }
+    </div>
+</div>
+
+<!-- Transaction Modal -->
+<div class="modal fade" id="transactionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="AddTransaction">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-money-bill-wave text-success me-2"></i>
+                        Add Transaction
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="caseIdForTransaction" name="caseId" />
+                    <div class="mb-3">
+                        <label for="transactionDateInput" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="transactionDateInput" name="transactionDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amountInput" class="form-label">Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Pkr</span>
+                            <input type="number"
+                                   class="form-control"
+                                   id="amountInput"
+                                   name="amount"
+                                   step="0.01"
+                                   min="0"
+                                   placeholder="Enter amount"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="transactionCommentInput" class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" id="transactionCommentInput" name="comment" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-2"></i>
+                        Save Transaction
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -142,5 +203,6 @@
     </div>
 </div>
 @section Scripts {
-    <script src="/Pages/Cases/Transactions.cshtml.js"></script>
+    <script src="~/js/Transactions.js"></script>
+       
 }

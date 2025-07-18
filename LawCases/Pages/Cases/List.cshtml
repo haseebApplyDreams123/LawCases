@@ -58,7 +58,7 @@
                     <i class="fas fa-pause-circle"></i>
                 </div>
                 <div class="stats-content">
-                    <h3>@Model.Cases.Count(c => c.Status == "Temporary")</h3>
+                    <h3>@Model.Cases.Count(c => c.Status == "Temporary Closed")</h3>
                     <p>Temporary Closed</p>
                 </div>
             </div>
@@ -105,7 +105,7 @@
                         <select name="statusFilter" class="form-control">
                             <option value="">All Status</option>
                             <option value="Open" selected="@(Model.StatusFilter == "Open")">Open</option>
-                            <option value="Temporary" selected="@(Model.StatusFilter == "Temporary")">Temporary Closed</option>
+                            <option value="Temporary Closed" selected="@(Model.StatusFilter == "Temporary Closed")">Temporary Closed</option>
                             <option value="Closed" selected="@(Model.StatusFilter == "Closed")">Closed</option>
                         </select>
                     </div>
@@ -168,19 +168,79 @@
                     <table class="table table-hover cases-table" id="casesTable">
                         <thead class="table-header">
                             <tr>
-                                <th>Case Information</th>
-                                <th>Client & Court</th>
+                                <th>
+                                    <a href="@Model.GetSortUrl("Title")" class="sort-link">
+                                        Case Information
+                                        @if (Model.SortBy == "Title")
+                                        {
+                                            <i class="fas fa-sort-@(Model.SortOrder == "asc" ? "up" : "down")"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sort"></i>
+                                        }
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="@Model.GetSortUrl("ClientName")" class="sort-link">
+                                        Client & Court
+                                        @if (Model.SortBy == "ClientName")
+                                        {
+                                            <i class="fas fa-sort-@(Model.SortOrder == "asc" ? "up" : "down")"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sort"></i>
+                                        }
+                                    </a>
+                                </th>
                                 <th>Case Details</th>
-                                <th>Dates</th>
-                                <th>Amount</th>
-                                <th>Status</th>
+                                <th>
+                                    <a href="@Model.GetSortUrl("NextDate")" class="sort-link">
+                                        Dates
+                                        @if (Model.SortBy == "NextDate")
+                                        {
+                                            <i class="fas fa-sort-@(Model.SortOrder == "asc" ? "up" : "down")"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sort"></i>
+                                        }
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="@Model.GetSortUrl("TotalAmount")" class="sort-link">
+                                        Amount
+                                        @if (Model.SortBy == "TotalAmount")
+                                        {
+                                            <i class="fas fa-sort-@(Model.SortOrder == "asc" ? "up" : "down")"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sort"></i>
+                                        }
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="@Model.GetSortUrl("Status")" class="sort-link">
+                                        Status
+                                        @if (Model.SortBy == "Status")
+                                        {
+                                            <i class="fas fa-sort-@(Model.SortOrder == "asc" ? "up" : "down")"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sort"></i>
+                                        }
+                                    </a>
+                                </th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var caseItem in Model.Cases)
                             {
-                                <tr>
+                                <tr class="clickable-row" data-href="@Url.Page("./Detail", new { id = caseItem.CaseId })">
                                     <td>
                                         <div class="case-info">
                                             <div class="case-icon bg-@(caseItem.Category.ToLower() == "criminal" ? "danger" : caseItem.Category.ToLower() == "civil" ? "primary" : caseItem.Category.ToLower() == "family" ? "warning" : "success")">
@@ -249,20 +309,6 @@
                                                         @caseItem.NextDate.Value.ToString("MMM dd, yyyy")
                                                     </span>
                                                 </div>
-                                                @if (caseItem.NextDate.Value < DateTime.Now)
-                                                {
-                                                    <span class="badge badge-danger">
-                                                        <i class="fas fa-exclamation-triangle me-1"></i>
-                                                        Overdue
-                                                    </span>
-                                                }
-                                                else if (caseItem.NextDate.Value <= DateTime.Now.AddDays(7))
-                                                {
-                                                    <span class="badge badge-warning">
-                                                        <i class="fas fa-clock me-1"></i>
-                                                        Due Soon
-                                                    </span>
-                                                }
                                             }
                                             else
                                             {
@@ -288,84 +334,75 @@
                                     </td>
                                     <td>
                                         <div class="status-info">
-                                            <span class="badge badge-status-@caseItem.Status.ToLower()">
-                                                <i class="fas fa-@(caseItem.Status == "Open" ? "folder-open" : caseItem.Status == "Temporary" ? "pause-circle" : "folder") me-1"></i>
-                                                @caseItem.Status
-                                            </span>
-                                            @* @if (caseItem.Status == "Closed" && !string.IsNullOrEmpty(caseItem.CloseType))
-                                            {
-                                                <small class="text-muted d-block">(@caseItem.CloseType)</small>
-                                            } *@
-                                            <div class="case-progress">
-                                                <div class="progress-bar progress-@caseItem.Status.ToLower()"></div>
-                                            </div>
+                                            <p class="form-control-plaintext">
+                                                <span class="badge bg-@(caseItem.Status == "Open" ? "success" : caseItem.Status == "Closed" ? "danger" : "warning")">
+                                                    @(caseItem.Status ?? "N/A")
+                                                </span>
+                                            </p>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="action-buttons d-flex gap-1">
-                                            <!-- View Details -->
-                                            <a asp-page="./Detail" asp-route-id="@caseItem.CaseId"
-                                               class="btn btn-sm btn-outline-primary" title="View Details">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-
-                                            <!-- Edit Case -->
-                                            <a asp-page="./Edit" asp-route-id="@caseItem.CaseId"
-                                               class="btn btn-sm btn-outline-warning" title="Edit Case">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-
-                                            <!-- All Dates -->
-                                            <a asp-page="./Dates" asp-route-caseId="@caseItem.CaseId"
-                                               class="btn btn-sm btn-outline-info" title="All Dates">
-                                                <i class="fas fa-calendar-alt"></i>
-                                            </a>
-
-                                            <!-- Next Date Button - Updated version -->
-                                            <button type="button" class="btn btn-sm btn-outline-success"
-                                                    onclick="showNextDateModal(@caseItem.CaseId)" title="Next Date">
-                                                <i class="fas fa-calendar-day"></i>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="actionsDropdown-@caseItem.CaseId" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-h"></i>
                                             </button>
-
-                                            <!-- Transaction History -->
-                                            <a asp-page="./Transactions" asp-route-caseId="@caseItem.CaseId"
-                                               class="btn btn-sm btn-outline-secondary" title="Transaction History">
-                                                <i class="fas fa-receipt"></i>
-                                            </a>
-
-                                            <!-- Add Transaction Button -->
-                                            <button type="button" class="btn btn-sm btn-outline-success"
-                                                    onclick="showTransactionModal(@caseItem.CaseId)"
-                                                    title="Add Transaction">
-                                                <i class="fas fa-money-bill-wave"></i>
-                                            </button>
-
-                                            @if (caseItem.Status == "Closed" || caseItem.Status == "Temporary")
-                                            {
-                                                <!-- Reopen Case Button -->
-                                                <button type="button" class="btn btn-sm btn-outline-info"
-                                                        onclick="showReopenCaseModal(@caseItem.CaseId, '@caseItem.Title')"
-                                                        title="Reopen Case">
-                                                    <i class="fas fa-unlock"></i>
-                                                </button>
-                                          
-                                            }
-                                            else
-                                            {
-                                                <!-- Close Case Button -->
-                                                <button type="button" class="btn btn-sm btn-outline-dark"
-                                                        onclick="showCloseCaseModal(@caseItem.CaseId, '@caseItem.Title')"
-                                                        title="Close Case">
-                                                    <i class="fas fa-lock"></i>
-                                                </button>
-                                            }
-
-                                            <!-- Delete Case -->
-                                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                                    onclick="showDeleteModal(@caseItem.CaseId, '@caseItem.Title')"
-                                                    title="Delete Case">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="actionsDropdown-@caseItem.CaseId">
+                                                <li>
+                                                    <a class="dropdown-item" asp-page="./Edit" asp-route-id="@caseItem.CaseId">
+                                                        <i class="fas fa-edit text-warning me-2"></i>
+                                                        Edit Case
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-page="./Dates" asp-route-caseId="@caseItem.CaseId">
+                                                        <i class="fas fa-calendar-alt text-info me-2"></i>
+                                                        All Dates
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <button type="button" class="dropdown-item" onclick="showNextDateModal(@caseItem.CaseId)">
+                                                        <i class="fas fa-calendar-day text-success me-2"></i>
+                                                        Next Date
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-page="./Transactions" asp-route-caseId="@caseItem.CaseId">
+                                                        <i class="fas fa-receipt text-secondary me-2"></i>
+                                                        Transaction History
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <button type="button" class="dropdown-item" onclick="showTransactionModal(@caseItem.CaseId)">
+                                                        <i class="fas fa-money-bill-wave text-success me-2"></i>
+                                                        Add Transaction
+                                                    </button>
+                                                </li>
+                                                @if (caseItem.Status == "Closed" || caseItem.Status == "Temporary Closed")
+                                                {
+                                                    <li>
+                                                        <button type="button" class="dropdown-item" onclick="showReopenCaseModal(@caseItem.CaseId, '@caseItem.Title')">
+                                                            <i class="fas fa-unlock text-info me-2"></i>
+                                                            Reopen Case
+                                                        </button>
+                                                    </li>
+                                                }
+                                                else
+                                                {
+                                                    <li>
+                                                        <button type="button" class="dropdown-item" onclick="showCloseCaseModal(@caseItem.CaseId, '@caseItem.Title')">
+                                                            <i class="fas fa-lock text-dark me-2"></i>
+                                                            Close Case
+                                                        </button>
+                                                    </li>
+                                                }
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <button type="button" class="dropdown-item text-danger" onclick="showDeleteModal(@caseItem.CaseId, '@caseItem.Title')">
+                                                        <i class="fas fa-trash me-2"></i>
+                                                        Delete Case
+                                                    </button>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
@@ -402,24 +439,76 @@
         <!-- Pagination -->
         @if (Model.Cases.Any())
         {
-            <div class="pagination-wrapper">
-                <nav aria-label="Clients pagination">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <span class="me-2">Show:</span>
+                        <select class="form-select form-select-sm w-auto" onchange="changePageSize(this.value)">
+                            <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                            <option value="25" selected="@(Model.PageSize == 25)">25</option>
+                            <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                            <option value="100" selected="@(Model.PageSize == 100)">100</option>
+                        </select>
+                        <span class="ms-2">entries</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-end mb-0">
+                            <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                                <a class="page-link" href="@Model.GetPageUrl(1)" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                                <a class="page-link" href="@Model.GetPageUrl(Model.PageNumber - 1)" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            @{
+                                int startPage = Math.Max(1, Model.PageNumber - 2);
+                                int endPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
+
+                                if (startPage > 1)
+                                {
+                                    <li class="page-item"><a class="page-link" href="@Model.GetPageUrl(1)">1</a></li>
+                                    if (startPage > 2)
+                                    {
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    }
+                                }
+
+                                for (int i = startPage; i <= endPage; i++)
+                                {
+                                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                        <a class="page-link" href="@Model.GetPageUrl(i)">@i</a>
+                                    </li>
+                                }
+
+                                if (endPage < Model.TotalPages)
+                                {
+                                    if (endPage < Model.TotalPages - 1)
+                                    {
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    }
+                                    <li class="page-item"><a class="page-link" href="@Model.GetPageUrl(Model.TotalPages)">@Model.TotalPages</a></li>
+                                }
+                            }
+
+                            <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                                <a class="page-link" href="@Model.GetPageUrl(Model.PageNumber + 1)" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                                <a class="page-link" href="@Model.GetPageUrl(Model.TotalPages)" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         }
     </div>
@@ -428,27 +517,27 @@
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                 <form method="post" asp-page-handler="Delete">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-exclamation-triangle text-danger me-2"></i>
-                        Confirm Delete
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete <strong id="caseNameToDelete"></strong>?</p>
-                    <p class="text-muted">This action cannot be undone and will permanently remove all cases data.</p>
-                    <input type="hidden" id="caseIdToDelete" name="id" />
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-page-handler="Delete">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                            Confirm Delete
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete <strong id="caseNameToDelete"></strong>?</p>
+                        <p class="text-muted">This action cannot be undone and will permanently remove all cases data.</p>
+                        <input type="hidden" id="caseIdToDelete" name="id" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-danger">
 
-                        <i class="fas fa-trash me-2"></i>
-                        Delete Case
-                    </button>
-                </div>
+                            <i class="fas fa-trash me-2"></i>
+                            Delete Case
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -602,6 +691,7 @@
             </div>
         </div>
     </div>
+
 
 
 @section Scripts {

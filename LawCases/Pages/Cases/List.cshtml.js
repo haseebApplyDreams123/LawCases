@@ -248,6 +248,39 @@ function printTable() {
     window.print();
 }
 
+// Change page size
+function changePageSize(pageSize) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('pageSize', pageSize);
+    url.searchParams.set('pageNumber', 1); // Reset to first page
+    window.location.href = url.toString();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const rows = document.querySelectorAll('.clickable-row');
+    rows.forEach(row => {
+        row.addEventListener('click', function (e) {
+            // Don't navigate if the click was on the dropdown or a button
+            if (e.target.closest('.dropdown, .dropdown-toggle, .dropdown-item, button')) {
+                return;
+            }
+            window.location.href = this.dataset.href;
+        });
+    });
+});
+
+// Sorting functionality
+document.addEventListener('DOMContentLoaded', function () {
+    // Highlight current sort column
+    const sortLinks = document.querySelectorAll('.sort-link');
+    sortLinks.forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.location.href = this.getAttribute('href');
+        });
+    });
+});
+
 // Enhanced table search
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.querySelector('input[name="searchTerm"]');

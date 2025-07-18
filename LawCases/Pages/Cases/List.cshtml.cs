@@ -35,6 +35,23 @@ namespace LawCases.Pages.Cases
         [BindProperty(SupportsGet = true)]
         public string CategoryFilter { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string SortBy { get; set; } = "Title";  // Default ab "Title" column
+
+        [BindProperty(SupportsGet = true)]
+        public string SortOrder { get; set; } = "asc";  // Ascending order (A-Z)
+
+        [BindProperty(SupportsGet = true)]
+        public int PageNumber { get; set; } = 1;
+
+        [BindProperty(SupportsGet = true)]
+        public int PageSize { get; set; } = 10;
+
+        public int TotalPages { get; set; }
+        public int TotalRecords { get; set; }
+        public bool HasPreviousPage => PageNumber > 1;
+        public bool HasNextPage => PageNumber < TotalPages;
+
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -108,9 +125,100 @@ namespace LawCases.Pages.Cases
                 query = query.Where(c => c.Category == CategoryFilter);
             }
 
-            Cases = await query.OrderByDescending(c => c.CreatedOn).ToListAsync();
+            // Count total records for pagination
+            TotalRecords = await query.CountAsync();
+            TotalPages = (int)Math.Ceiling((double)TotalRecords / PageSize);
+
+            // Apply sorting
+            switch(SortBy.ToLower())
+            {
+                case "title":
+                default:
+                    query = SortOrder == "asc" ? query.OrderBy(c => c.Title) : query.OrderByDescending(c => c.Title);
+                    break;
+                case "clientname":
+                    query = SortOrder == "asc" ? query.OrderBy(c => c.ClientName) : query.OrderByDescending(c => c.ClientName);
+                    break;
+                case "startdate":
+                    query = SortOrder == "asc" ? query.OrderBy(c => c.StartDate) : query.OrderByDescending(c => c.StartDate);
+                    break;
+                case "nextdate":
+                    query = SortOrder == "asc" ? query.OrderBy(c => c.NextDate) : query.OrderByDescending(c => c.NextDate);
+                    break;
+                case "status":
+                    query = SortOrder == "asc" ? query.OrderBy(c => c.Status) : query.OrderByDescending(c => c.Status);
+                    break;
+                case "totalamount":
+                    query = SortOrder == "asc" ? query.OrderBy(c => c.TotalAmount) : query.OrderByDescending(c => c.TotalAmount);
+                    break;
+                case "createdon":
+                    query = SortOrder == "asc" ? query.OrderBy(c => c.CreatedOn) : query.OrderByDescending(c => c.CreatedOn);
+                    break;
+            }
+
+
+            Cases = await query
+          .Skip((PageNumber - 1) * PageSize)
+          .Take(PageSize)
+          .ToListAsync();
+
+
 
             return Page();
+        }
+
+        public string GetPageUrl(int pageNumber)
+        {
+            var queryParams = new List<string>();
+
+            if (!string.IsNullOrEmpty(SearchTerm))
+                queryParams.Add($"searchTerm={Uri.EscapeDataString(SearchTerm)}");
+
+            if (!string.IsNullOrEmpty(StatusFilter))
+                queryParams.Add($"statusFilter={Uri.EscapeDataString(StatusFilter)}");
+
+            if (!string.IsNullOrEmpty(CategoryFilter))
+                queryParams.Add($"categoryFilter={Uri.EscapeDataString(CategoryFilter)}");
+
+            if (!string.IsNullOrEmpty(SortBy))
+                queryParams.Add($"sortBy={Uri.EscapeDataString(SortBy)}");
+
+            if (!string.IsNullOrEmpty(SortOrder))
+                queryParams.Add($"sortOrder={Uri.EscapeDataString(SortOrder)}");
+
+            queryParams.Add($"pageNumber={pageNumber}");
+            queryParams.Add($"pageSize={PageSize}");
+
+            return $"/Cases/List?{string.Join("&", queryParams)}";
+        }
+
+        // Add this helper method to generate sort URLs
+        public string GetSortUrl(string sortBy)
+        {
+            var queryParams = new List<string>();
+
+            if (!string.IsNullOrEmpty(SearchTerm))
+                queryParams.Add($"searchTerm={Uri.EscapeDataString(SearchTerm)}");
+
+            if (!string.IsNullOrEmpty(StatusFilter))
+                queryParams.Add($"statusFilter={Uri.EscapeDataString(StatusFilter)}");
+
+            if (!string.IsNullOrEmpty(CategoryFilter))
+                queryParams.Add($"categoryFilter={Uri.EscapeDataString(CategoryFilter)}");
+
+            // Toggle sort order if clicking the same column
+            string newSortOrder = "asc";
+            if (SortBy == sortBy)
+            {
+                newSortOrder = SortOrder == "asc" ? "desc" : "asc";
+            }
+
+            queryParams.Add($"sortBy={Uri.EscapeDataString(sortBy)}");
+            queryParams.Add($"sortOrder={Uri.EscapeDataString(newSortOrder)}");
+            queryParams.Add($"pageSize={PageSize}");
+            queryParams.Add($"pageNumber={1}"); // Reset to first page when sorting
+
+            return $"/Cases/List?{string.Join("&", queryParams)}";
         }
 
         // Updated delete method with proper cascading soft delete
@@ -206,7 +314,7 @@ namespace LawCases.Pages.Cases
 
             if (closeType == "Temporary")
             {
-                caseToClose.Status = "Temporary";
+                caseToClose.Status = "Temporary Closed";
                 caseToClose.CloseType = closeType;
                 caseToClose.ModifiedOn = DateTime.UtcNow;
             }
@@ -363,6 +471,7 @@ namespace LawCases.Pages.Cases
             return RedirectToPage();
         }
 
+
         public async Task<IActionResult> OnPostReopenCase(int caseId, string reopenNotes)
         {
             var userIdString = _userManager.GetUserId(User);
@@ -390,69 +499,7 @@ namespace LawCases.Pages.Cases
             return RedirectToPage();
         }
 
-        // Bulk delete method
-        public async Task<IActionResult> OnPostBulkDeleteAsync(int[] caseIds)
-        {
-            var userIdString = _userManager.GetUserId(User);
-            int userId = 0;
-            bool isParsed = int.TryParse(userIdString, out userId);
-
-            if (string.IsNullOrEmpty(userIdString) || !isParsed)
-            {
-                return RedirectToPage("/Account/Login", new { area = "Identity" });
-            }
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
-            {
-                var casesToDelete = await _context.Cases
-                    .Include(c => c.CaseDates)
-                    .Include(c => c.CasePayment)
-                    .Include(c => c.Documents)
-                    .Where(c => caseIds.Contains(c.CaseId) && c.UserId == userId && !c.IsDeleted)
-                    .ToListAsync();
-
-                foreach (var caseToDelete in casesToDelete)
-                {
-                    // Soft delete the main case
-                    caseToDelete.IsDeleted = true;
-                    caseToDelete.DeletedOn = DateTime.UtcNow;
-
-                    // Soft delete related data
-                    foreach (var caseDate in caseToDelete.CaseDates.Where(cd => !cd.IsDeleted))
-                    {
-                        caseDate.IsDeleted = true;
-                        caseDate.DeletedOn = DateTime.UtcNow;
-                    }
-
-                    foreach (var payment in caseToDelete.CasePayment.Where(cp => !cp.IsDeleted))
-                    {
-                        payment.IsDeleted = true;
-                        payment.DeletedOn = DateTime.UtcNow;
-                    }
-
-                    if (caseToDelete.Documents != null)
-                    {
-                        foreach (var document in caseToDelete.Documents.Where(d => !d.IsDeleted))
-                        {
-                            document.IsDeleted = true;
-                            document.DeletedOn = DateTime.UtcNow;
-                        }
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
-
-            return RedirectToPage();
-        }
+      
     }
 
 }

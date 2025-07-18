@@ -71,28 +71,28 @@ namespace LawCases.Pages.Cases
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                // Reload dropdown data
-                var userIdString = _userManager.GetUserId(User);
-                int userId = int.Parse(userIdString);
+            //if (!ModelState.IsValid)
+            //{
+            //    // Reload dropdown data
+            //    var userIdString = _userManager.GetUserId(User);
+            //    int userId = int.Parse(userIdString);
 
-                var clients = await _context.Clients
-                    .Where(c => c.UserId == userId && !c.IsDeleted)
-                    .Select(c => new { c.ClientId, FullName = c.FirstName + " " + c.LastName })
-                    .ToListAsync();
+            //    var clients = await _context.Clients
+            //        .Where(c => c.UserId == userId && !c.IsDeleted)
+            //        .Select(c => new { c.ClientId, FullName = c.FirstName + " " + c.LastName })
+            //        .ToListAsync();
 
-                ClientSelectList = new SelectList(clients, "ClientId", "FullName");
+            //    ClientSelectList = new SelectList(clients, "ClientId", "FullName");
 
-                var categories = await _context.Categories
-                    .Where(c => !c.IsDeleted)
-                    .Select(c => new { c.Name, c.Description })
-                    .ToListAsync();
+            //    var categories = await _context.Categories
+            //        .Where(c => !c.IsDeleted)
+            //        .Select(c => new { c.Name, c.Description })
+            //        .ToListAsync();
 
-                CategorySelectList = new SelectList(categories, "Name", "Name");
+            //    CategorySelectList = new SelectList(categories, "Name", "Name");
 
-                return Page();
-            }
+            //    return Page();
+            //}
 
             var userIdString2 = _userManager.GetUserId(User);
             int userId2 = 0;
@@ -117,8 +117,7 @@ namespace LawCases.Pages.Cases
                         FIRNumber = Case.FIRNumber,
                         CaseNumber = Case.CaseNumber,
                         StartDate = Case.StartDate,
-                        Status = Case.Status,
-                        CloseType = Case.CloseType,
+                        Status = "Open",
                         PoliceStation = Case.PoliceStation,
                         District = Case.District,
                         FIRYear = Case.FIRYear,

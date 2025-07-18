@@ -1,7 +1,24 @@
 ﻿@page
+@model LogoutModel
 @{
     Layout = null;
     ViewData["Title"] = "Logout";
 }
 
-<p>Logging out...</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logging out...</title>
+    <script>
+        // Force a hard redirect after logout to ensure cookies are cleared
+        window.onload = function() {
+            setTimeout(function() {
+                window.location.href = '/Account/Login';
+            }, 1000);
+        };
+    </script>
+</head>
+<body>
+    <p>Logging out...</p>
+</body>
+</html>

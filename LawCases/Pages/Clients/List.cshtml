@@ -162,10 +162,6 @@
             </h5>
             <div class="table-actions">
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="bulkDeleteClients()">
-                        <i class="fas fa-trash me-1"></i>
-                        Delete Selected
-                    </button>
                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="exportToExcel()">
                         <i class="fas fa-file-excel me-1"></i>
                         Export
@@ -185,12 +181,45 @@
                         <thead class="table-header">
                             <tr>
                                 <th>
-                                    <input type="checkbox" class="form-check-input" id="selectAll" />
+                                    <a href="@Model.GetSortUrl("FirstName")" class="sort-link">
+                                        Client
+                                        @if (Model.SortBy == "FirstName")
+                                        {
+                                            <i class="fas fa-sort-@(Model.SortOrder == "asc" ? "up" : "down")"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sort"></i>
+                                        }
+                                    </a>
                                 </th>
-                                <th>Client</th>
                                 <th>Contact Info</th>
-                                <th>Personal Details</th>
-                                <th>Created</th>
+                                <th>
+                                    <a href="@Model.GetSortUrl("DateOfBirth")" class="sort-link">
+                                        Personal Details
+                                        @if (Model.SortBy == "DateOfBirth")
+                                        {
+                                            <i class="fas fa-sort-@(Model.SortOrder == "asc" ? "up" : "down")"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sort"></i>
+                                        }
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="@Model.GetSortUrl("CreatedOn")" class="sort-link">
+                                        Created
+                                        @if (Model.SortBy == "CreatedOn")
+                                        {
+                                            <i class="fas fa-sort-@(Model.SortOrder == "asc" ? "up" : "down")"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sort"></i>
+                                        }
+                                    </a>
+                                </th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -199,9 +228,6 @@
                             @foreach (var client in Model.Clients)
                             {
                                 <tr>
-                                    <td>
-                                        <input type="checkbox" class="form-check-input client-checkbox" value="@client.ClientId" />
-                                    </td>
                                     <td>
                                         <div class="client-info">
                                             <div class="client-avatar">
@@ -305,31 +331,89 @@
                 </div>
             }
         </div>
-    </div>
 
     <!-- Pagination -->
     @if (Model.Clients.Any())
     {
-        <div class="pagination-wrapper">
-            <nav aria-label="Clients pagination">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <span class="me-2">Show:</span>
+                    <select class="form-select form-select-sm w-auto" onchange="changePageSize(this.value)">
+                        <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                        <option value="25" selected="@(Model.PageSize == 25)">25</option>
+                        <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                        <option value="100" selected="@(Model.PageSize == 100)">100</option>
+                    </select>
+                    <span class="ms-2">entries</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-end mb-0">
+                        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                            <a class="page-link" href="@Model.GetPageUrl(1)" aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                            <a class="page-link" href="@Model.GetPageUrl(Model.PageNumber - 1)" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+
+                        @{
+                            int startPage = Math.Max(1, Model.PageNumber - 2);
+                            int endPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
+
+                            if (startPage > 1)
+                            {
+                                <li class="page-item"><a class="page-link" href="@Model.GetPageUrl(1)">1</a></li>
+                                if (startPage > 2)
+                                {
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                }
+                            }
+
+                            for (int i = startPage; i <= endPage; i++)
+                            {
+                                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link" href="@Model.GetPageUrl(i)">@i</a>
+                                </li>
+                            }
+
+                            if (endPage < Model.TotalPages)
+                            {
+                                if (endPage < Model.TotalPages - 1)
+                                {
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                }
+                                <li class="page-item"><a class="page-link" href="@Model.GetPageUrl(Model.TotalPages)">@Model.TotalPages</a></li>
+                            }
+                        }
+
+                        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                            <a class="page-link" href="@Model.GetPageUrl(Model.PageNumber + 1)" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                            <a class="page-link" href="@Model.GetPageUrl(Model.TotalPages)" aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
+
+        @* <div class="row mt-2">
+            <div class="col-md-12 text-muted">
+                Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to @Math.Min(Model.PageNumber * Model.PageSize, Model.TotalRecords) of @Model.TotalRecords entries
+            </div>
+        </div> *@
     }
+    </div>
 </div>
 
 <!-- Delete Confirmation Modal -->
@@ -362,6 +446,6 @@
 </div>
 
 @section Scripts {
-        <script src="/Pages/Clients/List.cshtml.js"></script>
+    <script src="~/js/ClientList.js"></script>
 }
 
